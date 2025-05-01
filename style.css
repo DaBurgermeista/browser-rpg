@@ -63,3 +63,11 @@ button {
   margin-top: 2px;
 }
 
+#tooltip .tooltip-title {
+  font-weight: bold;
+  color: #ffd700;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  display: block;
+}
+
