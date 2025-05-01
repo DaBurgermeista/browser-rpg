@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         player.inventory.splice(index, 1);
         applyEquipmentBonuses();
         updateUI();
-      }
+      };
         log("You don't have enough money to rest.");
       };
 
