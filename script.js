@@ -167,6 +167,9 @@ document.addEventListener("DOMContentLoaded", () => {
         player.inventory.splice(index, 1);
         applyEquipmentBonuses();
         updateUI();
+      } else {
+        log("You don't have enough money to rest.");
+      }
       };
 
       inventoryDiv.appendChild(btn);
@@ -270,9 +273,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleLocationAction(action) {
     if (action === 'rest') {
-      player.hp = player.maxHp;
+      const restCost = 100; // 1 silver (100 copper)
+      if (player.copper >= restCost) {
+        player.copper -= restCost;
+        player.hp = player.maxHp;
       player.regenBuffer = 0;
-      log("You take a moment to rest. HP fully restored.");
+      log(`You take a moment to rest. HP fully restored for ${formatCurrency(restCost)}.`);
       updateUI();
     } else if (action === 'shop') {
       log("The shop is not yet implemented.");
