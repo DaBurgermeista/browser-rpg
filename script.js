@@ -110,8 +110,9 @@ function startCombat(enemy) {
     if (enemy.currentHp <= 0) {
       clearInterval(combatLoop);
       const reward = 10;
-      player.gold += reward;
-      log(`You defeated the ${enemy.name}! +${reward} gold.`);
+      player.copper += reward;
+
+      log(`You defeated the ${enemy.name}! +${reward} cp.`);
       updateUI();
       fightBtn.disabled = false;
     }
