@@ -15,6 +15,6 @@ window.items = {
     name: "Lucky Coin",
     slot: "accessory",
     bonuses: { dexterity: +2 },
-    tooltip: "Feels lucky!"
+    tooltip: "Shiny and oddly inspiring.\n+2 Dexterity"
   }
 };
