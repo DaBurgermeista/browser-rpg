@@ -4,21 +4,6 @@ const hpDisplay = document.getElementById('hp');
 const currencyDisplay = document.getElementById('currency');
 const tooltip = document.getElementById('tooltip');
 
-const items = {
-  "Rusty Dagger": {
-    slot: "weapon",
-    bonuses: { attackSpeed: -300, dexterity: +1 }
-  },
-  "Tattered Cloak": {
-    slot: "armor",
-    bonuses: { regen: +0.1 }
-  },
-  "Lucky Coin": {
-    slot: "accessory",
-    bonuses: { dexterity: +2 }
-  }
-};
-
 let player = {
   hp: 100,
   maxHp: 100,
