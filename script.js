@@ -6,7 +6,7 @@ const goldDisplay = document.getElementById('gold');
 let player = {
   hp: 100,
   maxHp: 100,
-  gold: 0,
+  copper: 0,
   regen: 0.2,
   regenBuffer: 0,
   alive: true,
