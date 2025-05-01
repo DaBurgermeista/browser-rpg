@@ -9,7 +9,9 @@ let player = {
   gold: 0,
   regen: 0.2,
   regenBuffer: 0,
-  alive: true
+  alive: true,
+  dexterity: 5,
+  attackSpeed: 2000, // milliseconds per attack, can be adjusted by equipment
 };
 
 function updateUI() {
