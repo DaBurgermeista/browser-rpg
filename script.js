@@ -36,18 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
       items["Tattered Cloak"],
       items["Lucky Coin"]
     ]
-    document.getElementById('statStr').addEventListener('mouseover', (e) =>
-      showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
-    document.getElementById('statStr').addEventListener('mousemove', (e) =>
-      showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
-    document.getElementById('statStr').addEventListener('mouseleave', hideTooltip);
-    
-    document.getElementById('statDex').addEventListener('mouseover', (e) =>
-      showTooltip('Dexterity increases your attack speed and precision.', e.pageX, e.pageY));
-    document.getElementById('statDex').addEventListener('mousemove', (e) =>
-      showTooltip('Dexterity increases your attack speed and precision.', e.pageX, e.pageY));
-    document.getElementById('statDex').addEventListener('mouseleave', hideTooltip);
-
   };
 
   function formatCurrency(cp) {
@@ -111,9 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function hideTooltip() {
-    if (tooltip) {
-      tooltip.style.display = 'none';
-    }
+    if (tooltip) tooltip.style.display = 'none';
   }
 
   function applyEquipmentBonuses() {
@@ -128,16 +114,15 @@ document.addEventListener("DOMContentLoaded", () => {
           if (stat in player.stats) {
             player.stats[stat] += item.bonuses[stat];
           } else {
-            player[stat] += item.bonuses[stat]; // For non-core stats like regen or attackSpeed directly
+            player[stat] += item.bonuses[stat];
           }
         }
       }
     }
 
-    // Dexterity modifies attack speed (lower is faster)
     const dex = player.stats.dexterity;
     player.attackSpeed = player.baseAttackSpeed - dex * 20;
-    if (player.attackSpeed < 500) player.attackSpeed = 500;
+    if (player.attackSpeed < 400) player.attackSpeed = 400;
   }
 
   function renderInventory() {
@@ -214,7 +199,8 @@ document.addEventListener("DOMContentLoaded", () => {
         playerTimer = 0;
         const baseDamage = Math.floor(Math.random() * 10) + 5;
         const strBonus = Math.floor(player.stats.strength / 2);
-        const damage = baseDamage + strBonus;
+        const dexBonus = Math.floor(player.stats.dexterity / 4);
+        const damage = baseDamage + strBonus + dexBonus;
         enemy.currentHp -= damage;
         log(`You strike the ${enemy.name} for ${damage} damage! (${Math.max(0, enemy.currentHp)} HP left)`);
       }
@@ -271,6 +257,19 @@ document.addEventListener("DOMContentLoaded", () => {
     fightBtn.disabled = true;
     startCombat(enemy);
   });
+
+  // Stat explanation tooltips
+  strDisplay.addEventListener('mouseover', (e) =>
+    showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
+  strDisplay.addEventListener('mousemove', (e) =>
+    showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
+  strDisplay.addEventListener('mouseleave', hideTooltip);
+
+  dexDisplay.addEventListener('mouseover', (e) =>
+    showTooltip('Dexterity increases your attack speed and adds bonus damage.', e.pageX, e.pageY));
+  dexDisplay.addEventListener('mousemove', (e) =>
+    showTooltip('Dexterity increases your attack speed and adds bonus damage.', e.pageX, e.pageY));
+  dexDisplay.addEventListener('mouseleave', hideTooltip);
 
   applyEquipmentBonuses();
   updateUI();
