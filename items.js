@@ -3,10 +3,10 @@ const items = {
     name: "Rusty Dagger",
     slot: "weapon",
     bonuses: {
+      damageRange: [1, 4],
       attackSpeed: -300,
       dexterity: +1
     },
-    damageRange: [5, 10],
     description: `A dull dagger that still gets the job done.<br>
       <span class="bonus">-300ms attack delay</span><br>
       <span class="bonus">+1 Dexterity</span>`
