@@ -79,20 +79,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getItemTooltip(item) {
-  if (!item) return "An unidentified item.";
+  let tooltip = `<strong class="tooltip-title">${item.name}</strong><br>`;
+  tooltip += `${item.description}<br>`;
 
-  let output = `<strong class="tooltip-title">${item.name}</strong><br>`;
-
-  if (item.tooltip) {
-    output += item.tooltip + "<br>";
+  const bonuses = item.bonuses || {};
+  if (item.slot === "weapon" && Array.isArray(bonuses.damageRange)) {
+    const [min, max] = bonuses.damageRange;
+    const strBonus = Math.floor(player.strength / 2);
+    tooltip += `<span class="bonus">Damage: ${min}–${max} + ${strBonus} STR bonus</span><br>`;
   }
 
-  if (item.damageRange) {
-    const [min, max] = item.damageRange;
-    output += `<span class="bonus">Damage: ${min}–${max} + STR bonus</span>`;
+  for (const [key, value] of Object.entries(bonuses)) {
+    if (key !== "damageRange") {
+      tooltip += `<span class="bonus">+${value} ${capitalize(key)}</span><br>`;
+    }
   }
 
-  return output.trim();
+  return tooltip;
 }
 
 function getPlayerDamage() {
