@@ -71,3 +71,32 @@ button {
   display: block;
 }
 
+/* === Health Bar Wrappers === */
+.healthbar-wrapper,
+#playerHealthBarContainer,
+#enemyHealthBarContainer {
+  width: 100%;
+  max-width: 200px;
+  height: 20px;
+  background: #444;
+  border: 1px solid #222;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 5px;
+  margin-bottom: 1rem;
+}
+
+/* === Health Fill Bars === */
+#playerHealthBar {
+  height: 100%;
+  background: #4ade80;
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+#enemyHealthBar {
+  height: 100%;
+  background: #ef4444;
+  width: 100%;
+  transition: width 0.3s ease;
+}

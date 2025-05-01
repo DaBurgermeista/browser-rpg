@@ -49,7 +49,7 @@
       }
 
       #inventory button {
-        margin: 0.25rem 0.5rem 0.25rem 0;
+        margin-bottom: 0.5rem;
       }
 
       #tooltip {
@@ -65,13 +65,56 @@
         max-width: 200px;
         white-space: pre-line;
       }
+
+      .healthbar-wrapper {
+        width: 100%;
+        height: 20px;
+        background: #333;
+        border: 1px solid #555;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 5px;
+        margin-bottom: 0.5rem;
+        position: relative;
+      }
+
+      .healthbar-fill {
+        height: 100%;
+        width: 100%;
+        transition: width 0.3s ease;
+      }
+
+      #playerHealthBar {
+        background: #4ade80; /* green */
+      }
+
+      #enemyHealthBar {
+        background: #ef4444; /* red */
+      }
+
+      .hp-text {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        font-size: 0.8rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: white;
+        pointer-events: none;
+      }
+
+      #enemyHealthBarContainer {
+        display: none;
+        margin-top: 1rem;
+      }
     </style>
   </head>
   <body>
     <h1>Browser RPG</h1>
+
     <div id="locationUI" style="margin-bottom: 1rem">
       <label for="locationSelect">Current Location:</label>
-      <select id="locationSelect" onchange="switchLocation(this.value)">
+      <select id="locationSelect">
         <option value="town">Town</option>
         <option value="woods">Woods</option>
         <option value="dungeon">Dungeon</option>
@@ -85,6 +128,12 @@
       <!-- Left Column -->
       <div id="mainPanel">
         <div id="status" class="log-box"></div>
+
+        <!-- Enemy Health Bar -->
+        <div id="enemyHealthBarContainer" class="healthbar-wrapper">
+          <div id="enemyHealthBar" class="healthbar-fill"></div>
+          <div id="enemyHpText" class="hp-text">0 / 0</div>
+        </div>
 
         <div id="playerStats">
           <h2>Player Stats</h2>
@@ -100,6 +149,13 @@
           </p>
           <p>Attack Speed: <span id="apsLabel">Fast</span></p>
           <p>HP: <span id="hp">100</span></p>
+
+          <!-- Player Health Bar -->
+          <div id="playerHealthBarWrapper" class="healthbar-wrapper">
+            <div id="playerHealthBar" class="healthbar-fill"></div>
+            <div id="playerHpText" class="hp-text">100 / 100</div>
+          </div>
+
           <p>Currency: <span id="currency">0</span></p>
         </div>
       </div>
@@ -108,9 +164,7 @@
       <div id="sidePanel">
         <div id="inventorySection">
           <h2>Inventory</h2>
-          <div id="inventory">
-            <!-- Buttons populated by JS -->
-          </div>
+          <div id="inventory"></div>
 
           <h3>Equipped</h3>
           <ul>
@@ -131,7 +185,7 @@
     <!-- Tooltip container -->
     <div id="tooltip" style="display: none"></div>
 
-    <!-- Your game scripts -->
+    <!-- Scripts -->
     <script src="locations.js"></script>
     <script src="items.js"></script>
     <script src="enemies.js"></script>

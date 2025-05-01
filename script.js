@@ -78,6 +78,13 @@ document.addEventListener("DOMContentLoaded", () => {
     strDisplay.textContent = player.strength;
     dexDisplay.textContent = player.dexterity;
     apsLabel.textContent = getSpeedLabel(player.attackSpeed);
+
+    // Player bar
+    const pct = Math.floor((player.hp / player.maxHp) * 100);
+    document.getElementById("playerHealthBar").style.width = `${pct}%`;
+    document.getElementById("playerHpText").textContent =
+      `${Math.floor(player.hp)} / ${player.maxHp}`;
+
     renderInventory();
   }
 
@@ -146,6 +153,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
+  }
+  function updateEnemyHealthBar(enemy) {
+    const pct = Math.floor((enemy.currentHp / enemy.hp) * 100);
+    document.getElementById("enemyHealthBar").style.width = `${pct}%`;
+    document.getElementById("enemyHpText").textContent =
+      `${Math.max(0, enemy.currentHp)} / ${enemy.hp}`;
+    document.getElementById("enemyHealthBarContainer").style.display = "block";
   }
 
   function renderInventory() {
@@ -226,6 +240,10 @@ document.addEventListener("DOMContentLoaded", () => {
     header.style.fontWeight = "bold";
     status.appendChild(header);
     status.scrollTop = status.scrollHeight;
+    document.getElementById("enemyHealthBarContainer").style.display = "block";
+    const enemyHealthPercent = Math.floor((enemy.currentHp / enemy.hp) * 100);
+    document.getElementById("enemyHealthBar").style.width =
+      `${enemyHealthPercent}%`;
 
     const combatLoop = setInterval(() => {
       if (!player.alive) {
@@ -239,6 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
         playerTimer = 0;
         const damage = getPlayerDamage();
         enemy.currentHp -= damage;
+        updateEnemyHealthBar(enemy);
         log(
           `You strike the ${enemy.name} for ${damage} damage! (${Math.max(0, enemy.currentHp)} HP left)`,
         );
@@ -260,6 +279,8 @@ document.addEventListener("DOMContentLoaded", () => {
         clearInterval(combatLoop);
         const reward = 10;
         player.copper += reward;
+        document.getElementById("enemyHealthBarContainer").style.display =
+          "none";
         log(
           `You defeated the ${enemy.name}! Looted ${formatCurrency(reward)}.`,
         );
@@ -318,13 +339,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function switchLocation(newLoc) {
+  window.switchLocation = function (newLoc) {
     if (locations[newLoc]) {
       currentLocation = newLoc;
       log(`You travel to the ${locations[newLoc].name}.`);
       renderLocationUI();
     }
-  }
+  };
 
   locationSelect.addEventListener("change", (e) => {
     switchLocation(e.target.value);
@@ -333,4 +354,19 @@ document.addEventListener("DOMContentLoaded", () => {
   applyEquipmentBonuses();
   updateUI();
   renderLocationUI();
+  // Passive health regeneration every second
+  setInterval(() => {
+    if (player.alive && player.hp < player.maxHp) {
+      player.regenBuffer += player.regen;
+
+      if (player.regenBuffer >= 1) {
+        const healed = Math.floor(player.regenBuffer);
+        player.hp += healed;
+        player.regenBuffer -= healed;
+
+        if (player.hp > player.maxHp) player.hp = player.maxHp;
+        updateUI();
+      }
+    }
+  }, 1000);
 });
