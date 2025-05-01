@@ -1,15 +1,15 @@
 // script.js
 
 document.addEventListener("DOMContentLoaded", () => {
-  const fightBtn = document.getElementById('fightBtn');
-  const status = document.getElementById('status');
-  const hpDisplay = document.getElementById('hp');
-  const currencyDisplay = document.getElementById('currency');
-  const apsLabel = document.getElementById('apsLabel');
-  const strDisplay = document.getElementById('statStr');
-  const dexDisplay = document.getElementById('statDex');
-  const tooltip = document.getElementById('tooltip');
-  const locationSelect = document.getElementById('locationSelect');
+  const fightBtn = document.getElementById("fightBtn");
+  const status = document.getElementById("status");
+  const hpDisplay = document.getElementById("hp");
+  const currencyDisplay = document.getElementById("currency");
+  const apsLabel = document.getElementById("apsLabel");
+  const strDisplay = document.getElementById("statStr");
+  const dexDisplay = document.getElementById("statDex");
+  const tooltip = document.getElementById("tooltip");
+  const locationSelect = document.getElementById("locationSelect");
 
   window.tooltip = tooltip;
 
@@ -34,13 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
       boots: null,
       accessory: null,
       belt: null,
-      cloak: null
+      cloak: null,
     },
     inventory: [
       items["Rusty Dagger"],
       items["Tattered Cloak"],
-      items["Lucky Coin"]
-    ]
+      items["Lucky Coin"],
+    ],
   };
 
   let currentLocation = "town";
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (gp) parts.push(`${gp} gp`);
     if (sp) parts.push(`${sp} sp`);
     if (copper || parts.length === 0) parts.push(`${copper} cp`);
-    return parts.join(', ');
+    return parts.join(", ");
   }
 
   function calculateAttackSpeed(player) {
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function log(message) {
-    const entry = document.createElement('div');
+    const entry = document.createElement("div");
     entry.textContent = message;
     status.appendChild(entry);
     status.scrollTop = status.scrollHeight;
@@ -123,14 +123,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showTooltip(text, x, y) {
-    tooltip.style.left = x + 10 + 'px';
-    tooltip.style.top = y + 10 + 'px';
+    tooltip.style.left = x + 10 + "px";
+    tooltip.style.top = y + 10 + "px";
     tooltip.innerHTML = text;
-    tooltip.style.display = 'block';
+    tooltip.style.display = "block";
   }
 
   function hideTooltip() {
-    tooltip.style.display = 'none';
+    tooltip.style.display = "none";
   }
 
   function applyEquipmentBonuses() {
@@ -149,14 +149,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderInventory() {
-    const inventoryDiv = document.getElementById('inventory');
-    inventoryDiv.innerHTML = '';
+    const inventoryDiv = document.getElementById("inventory");
+    inventoryDiv.innerHTML = "";
 
     player.inventory.forEach((item, index) => {
-      const btn = document.createElement('button');
+      const btn = document.createElement("button");
       btn.textContent = `${item.slot.toUpperCase()}: ${item.name}`;
-      btn.onmouseover = (e) => showTooltip(getItemTooltip(item), e.pageX, e.pageY);
-      btn.onmousemove = (e) => showTooltip(getItemTooltip(item), e.pageX, e.pageY);
+      btn.onmouseover = (e) =>
+        showTooltip(getItemTooltip(item), e.pageX, e.pageY);
+      btn.onmousemove = (e) =>
+        showTooltip(getItemTooltip(item), e.pageX, e.pageY);
       btn.onmouseleave = hideTooltip;
 
       btn.onclick = () => {
@@ -173,9 +175,19 @@ document.addEventListener("DOMContentLoaded", () => {
       inventoryDiv.appendChild(btn);
     });
 
-    const equippedSlots = ["weapon", "offhand", "armor", "helmet", "gloves", "boots", "accessory", "belt", "cloak"];
+    const equippedSlots = [
+      "weapon",
+      "offhand",
+      "armor",
+      "helmet",
+      "gloves",
+      "boots",
+      "accessory",
+      "belt",
+      "cloak",
+    ];
 
-    equippedSlots.forEach(slot => {
+    equippedSlots.forEach((slot) => {
       const btn = document.getElementById(`unequip${capitalize(slot)}`);
       const item = player.equipment[slot];
       btn.textContent = item ? item.name : "None";
@@ -198,6 +210,62 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.onclick = null;
       }
     });
+  }
+
+  function startCombat(enemy) {
+    let playerTimer = 0;
+    let enemyTimer = 0;
+    const interval = 100;
+
+    const header = document.createElement("div");
+    header.textContent = `A ${enemy.name} appears!`;
+    header.style.color = "#facc15";
+    header.style.marginTop = "1rem";
+    header.style.borderTop = "1px solid #666";
+    header.style.paddingTop = "0.5rem";
+    header.style.fontWeight = "bold";
+    status.appendChild(header);
+    status.scrollTop = status.scrollHeight;
+
+    const combatLoop = setInterval(() => {
+      if (!player.alive) {
+        clearInterval(combatLoop);
+        log(`You were slain by a ${enemy.name}.`);
+        return;
+      }
+
+      playerTimer += interval;
+      if (playerTimer >= player.attackSpeed) {
+        playerTimer = 0;
+        const damage = getPlayerDamage();
+        enemy.currentHp -= damage;
+        log(
+          `You strike the ${enemy.name} for ${damage} damage! (${Math.max(0, enemy.currentHp)} HP left)`,
+        );
+      }
+
+      enemyTimer += interval;
+      if (enemyTimer >= enemy.attackPerSec) {
+        enemyTimer = 0;
+        const damage =
+          Math.floor(Math.random() * (enemy.maxDamage - enemy.minDamage + 1)) +
+          enemy.minDamage;
+        player.hp -= damage;
+        if (player.hp < 0) player.hp = 0;
+        log(`The ${enemy.name} hits you for ${damage} damage.`);
+        updateUI();
+      }
+
+      if (enemy.currentHp <= 0) {
+        clearInterval(combatLoop);
+        const reward = 10;
+        player.copper += reward;
+        log(
+          `You defeated the ${enemy.name}! Looted ${formatCurrency(reward)}.`,
+        );
+        updateUI();
+      }
+    }, interval);
   }
 
   function renderLocationUI() {
@@ -240,8 +308,11 @@ document.addEventListener("DOMContentLoaded", () => {
         log("Nothing to fight here.");
         return;
       }
-      const enemyName = loc.encounters[Math.floor(Math.random() * loc.encounters.length)];
-      const enemy = JSON.parse(JSON.stringify(enemies.find(e => e.name === enemyName)));
+      const enemyName =
+        loc.encounters[Math.floor(Math.random() * loc.encounters.length)];
+      const enemy = JSON.parse(
+        JSON.stringify(enemies.find((e) => e.name === enemyName)),
+      );
       enemy.currentHp = enemy.hp;
       startCombat(enemy);
     }

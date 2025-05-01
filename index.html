@@ -1,133 +1,140 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Browser RPG</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #111;
-      color: white;
-      margin: 0;
-      padding: 2rem;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browser RPG</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #111;
+        color: white;
+        margin: 0;
+        padding: 2rem;
+      }
 
-    h1 {
-      margin-bottom: 1rem;
-    }
+      h1 {
+        margin-bottom: 1rem;
+      }
 
-    #game {
-      display: flex;
-      gap: 2rem;
-      margin-top: 1rem;
-    }
+      #game {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+      }
 
-    #mainPanel {
-      flex: 2;
-    }
+      #mainPanel {
+        flex: 2;
+      }
 
-    #sidePanel {
-      flex: 1;
-      background: #1e1e1e;
-      border: 1px solid #444;
-      padding: 1rem;
-      border-radius: 10px;
-    }
+      #sidePanel {
+        flex: 1;
+        background: #1e1e1e;
+        border: 1px solid #444;
+        padding: 1rem;
+        border-radius: 10px;
+      }
 
-    #status {
-      height: 200px;
-      overflow-y: auto;
-      border: 1px solid #666;
-      padding: 0.5rem;
-      margin-top: 1rem;
-      background: #000;
-    }
+      #status {
+        height: 200px;
+        overflow-y: auto;
+        border: 1px solid #666;
+        padding: 0.5rem;
+        margin-top: 1rem;
+        background: #000;
+      }
 
-    button {
-      margin: 0.25rem 0.5rem 0.25rem 0;
-    }
+      button {
+        margin: 0.25rem 0.5rem 0.25rem 0;
+      }
 
-    #inventory button {
-      margin: 0.25rem 0.5rem 0.25rem 0;
-    }
+      #inventory button {
+        margin: 0.25rem 0.5rem 0.25rem 0;
+      }
 
-    #tooltip {
-      position: absolute;
-      background: #222;
-      color: #facc15;
-      padding: 5px 8px;
-      border: 1px solid #444;
-      border-radius: 5px;
-      font-size: 0.85rem;
-      pointer-events: none;
-      z-index: 10;
-      max-width: 200px;
-      white-space: pre-line;
-    }
-  </style>
-</head>
-<body>
-  <h1>Browser RPG</h1>
-    <div id="locationUI" style="margin-bottom: 1rem;">
-    <label for="locationSelect">Current Location:</label>
-    <select id="locationSelect" onchange="switchLocation(this.value)">
-      <option value="town">Town</option>
-      <option value="woods">Woods</option>
-      <option value="dungeon">Dungeon</option>
-    </select>
-  
-    <div id="locationInfo" style="margin-top: 1rem;"></div>
-    <div id="locationActions" style="margin-top: 0.5rem;"></div>
-  </div>
+      #tooltip {
+        position: absolute;
+        background: #222;
+        color: #facc15;
+        padding: 5px 8px;
+        border: 1px solid #444;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        pointer-events: none;
+        z-index: 10;
+        max-width: 200px;
+        white-space: pre-line;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Browser RPG</h1>
+    <div id="locationUI" style="margin-bottom: 1rem">
+      <label for="locationSelect">Current Location:</label>
+      <select id="locationSelect" onchange="switchLocation(this.value)">
+        <option value="town">Town</option>
+        <option value="woods">Woods</option>
+        <option value="dungeon">Dungeon</option>
+      </select>
 
-  <div id="game">
-    <!-- Left Column -->
-    <div id="mainPanel">
-      <button id="fightBtn">Fight Enemy</button>
-      <div id="status" class="log-box"></div>
-
-      <div id="playerStats">
-        <h2>Player Stats</h2>
-        <p><span id="statStrWrapper">Strength: <span id="statStr">5</span></span></p>
-        <p><span id="statDexWrapper">Dexterity: <span id="statDex">5</span></span></p>
-        <p>Attack Speed: <span id="apsLabel">Fast</span></p>
-        <p>HP: <span id="hp">100</span></p>
-        <p>Currency: <span id="currency">0</span></p>
-      </div>
+      <div id="locationInfo" style="margin-top: 1rem"></div>
+      <div id="locationActions" style="margin-top: 0.5rem"></div>
     </div>
 
-    <!-- Right Column -->
-    <div id="sidePanel">
-      <div id="inventorySection">
-        <h2>Inventory</h2>
-        <div id="inventory">
-          <!-- Buttons populated by JS -->
+    <div id="game">
+      <!-- Left Column -->
+      <div id="mainPanel">
+        <div id="status" class="log-box"></div>
+
+        <div id="playerStats">
+          <h2>Player Stats</h2>
+          <p>
+            <span id="statStrWrapper"
+              >Strength: <span id="statStr">5</span></span
+            >
+          </p>
+          <p>
+            <span id="statDexWrapper"
+              >Dexterity: <span id="statDex">5</span></span
+            >
+          </p>
+          <p>Attack Speed: <span id="apsLabel">Fast</span></p>
+          <p>HP: <span id="hp">100</span></p>
+          <p>Currency: <span id="currency">0</span></p>
         </div>
+      </div>
 
-        <h3>Equipped</h3>
-        <ul>
-          <li>Weapon: <button id="unequipWeapon">None</button></li>
-          <li>Offhand: <button id="unequipOffhand">None</button></li>
-          <li>Armor: <button id="unequipArmor">None</button></li>
-          <li>Helmet: <button id="unequipHelmet">None</button></li>
-          <li>Gloves: <button id="unequipGloves">None</button></li>
-          <li>Boots: <button id="unequipBoots">None</button></li>
-          <li>Accessory: <button id="unequipAccessory">None</button></li>
-          <li>Belt: <button id="unequipBelt">None</button></li>
-          <li>Cloak: <button id="unequipCloak">None</button></li>
-        </ul>
+      <!-- Right Column -->
+      <div id="sidePanel">
+        <div id="inventorySection">
+          <h2>Inventory</h2>
+          <div id="inventory">
+            <!-- Buttons populated by JS -->
+          </div>
+
+          <h3>Equipped</h3>
+          <ul>
+            <li>Weapon: <button id="unequipWeapon">None</button></li>
+            <li>Offhand: <button id="unequipOffhand">None</button></li>
+            <li>Armor: <button id="unequipArmor">None</button></li>
+            <li>Helmet: <button id="unequipHelmet">None</button></li>
+            <li>Gloves: <button id="unequipGloves">None</button></li>
+            <li>Boots: <button id="unequipBoots">None</button></li>
+            <li>Accessory: <button id="unequipAccessory">None</button></li>
+            <li>Belt: <button id="unequipBelt">None</button></li>
+            <li>Cloak: <button id="unequipCloak">None</button></li>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Tooltip container -->
-  <div id="tooltip" style="display: none;"></div>
+    <!-- Tooltip container -->
+    <div id="tooltip" style="display: none"></div>
 
-  <!-- Your game scripts -->
-  <script src="locations.js"></script>
-  <script src="items.js"></script>
-  <script src="enemies.js"></script>
-  <script src="script.js"></script>
-</body>
+    <!-- Your game scripts -->
+    <script src="locations.js"></script>
+    <script src="items.js"></script>
+    <script src="enemies.js"></script>
+    <script src="script.js" defer></script>
+  </body>
 </html>
