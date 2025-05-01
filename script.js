@@ -24,8 +24,14 @@ document.addEventListener("DOMContentLoaded", () => {
     baseDamage: 5,
     equipment: {
       weapon: null,
+      offhand: null,
       armor: null,
-      accessory: null
+      helmet: null,
+      gloves: null,
+      boots: null,
+      accessory: null,
+      belt: null,
+      cloak:null
     },
     inventory: [
       items["Rusty Dagger"],
