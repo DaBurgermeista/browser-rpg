@@ -37,6 +37,16 @@ fightBtn.addEventListener('click', () => {
 
   const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
   enemy.currentHp = enemy.hp;
+  
+  // Add visual divider between fights
+  const divider = document.createElement('div');
+  divider.textContent = `--- New Battle: ${enemy.name} ---`;
+  divider.style.color = '#facc15'; // Yellow-ish
+  divider.style.marginTop = '1rem';
+  divider.style.borderTop = '1px solid #666';
+  divider.style.paddingTop = '0.5rem';
+  status.appendChild(divider);
+  status.scrollTop = status.scrollHeight;
 
   log(`A wild ${enemy.name} appears!`);
   fightBtn.disabled = true;
