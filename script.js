@@ -78,8 +78,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getItemTooltip(item) {
-    return item?.tooltip || "An unidentified item.";
+    if (!item) return "An unidentified item.";
+  
+    return `
+      <strong class="tooltip-title">${item.name}</strong><br>
+      ${item.tooltip}
+    `;
   }
+
 
 
   function showTooltip(text, x, y) {
