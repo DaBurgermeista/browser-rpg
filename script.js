@@ -30,7 +30,6 @@ function formatCurrency(cp) {
   const gp = Math.floor(cp / 10000);
   const sp = Math.floor((cp % 10000) / 100);
   const copper = cp % 100;
-
   const parts = [];
   if (gp) parts.push(`${gp} gp`);
   if (sp) parts.push(`${sp} sp`);
@@ -41,7 +40,6 @@ function formatCurrency(cp) {
 function updateUI() {
   hpDisplay.textContent = Math.floor(player.hp);
   currencyDisplay.textContent = formatCurrency(player.copper);
-
   if (player.hp <= 0 && player.alive) {
     player.hp = 0;
     player.alive = false;
@@ -61,7 +59,7 @@ function getItemTooltip(item) {
   if (!item || !item.bonuses) return '';
   const lines = [];
   for (let stat in item.bonuses) {
-    let sign = item.bonuses[stat] >= 0 ? '+' : '';
+    const sign = item.bonuses[stat] >= 0 ? '+' : '';
     lines.push(`${sign}${item.bonuses[stat]} ${stat}`);
   }
   return lines.join('\n');
@@ -82,10 +80,9 @@ function applyEquipmentBonuses() {
   player.attackSpeed = player.baseAttackSpeed;
   player.regen = 0.2;
   player.dexterity = 5;
-
   for (let slot in player.equipment) {
     const item = player.equipment[slot];
-    if (item && item.bonuses) {
+    if (item?.bonuses) {
       for (let stat in item.bonuses) {
         player[stat] += item.bonuses[stat];
       }
@@ -99,7 +96,7 @@ function renderInventory() {
 
   player.inventory.forEach((item) => {
     const btn = document.createElement('button');
-    const itemName = item.name || "Unknown";
+    const itemName = item.name || "Unnamed Item";
     const tooltipText = getItemTooltip(item);
 
     btn.textContent = `${item.slot.toUpperCase()}: ${itemName}`;
@@ -114,6 +111,7 @@ function renderInventory() {
       updateUI();
       renderInventory();
     };
+
     inventoryDiv.appendChild(btn);
   });
 
@@ -127,6 +125,7 @@ function renderInventory() {
     const item = player.equipment[slot];
     const name = item?.name || "None";
     const tooltipText = getItemTooltip(item);
+
     equipped[slot].textContent = name;
     equipped[slot].onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
     equipped[slot].onmousemove = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
@@ -135,7 +134,7 @@ function renderInventory() {
     if (item) {
       equipped[slot].disabled = false;
       equipped[slot].onclick = () => {
-        player.inventory.push(player.equipment[slot]);
+        player.inventory.push(item);
         player.equipment[slot] = null;
         applyEquipmentBonuses();
         updateUI();
@@ -147,26 +146,6 @@ function renderInventory() {
     }
   }
 }
-
-fightBtn.addEventListener('click', () => {
-  if (!player.alive) return;
-
-  const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
-  enemy.currentHp = enemy.hp;
-
-  const header = document.createElement('div');
-  header.textContent = `A wild ${enemy.name} appears!`;
-  header.style.color = '#facc15';
-  header.style.marginTop = '1rem';
-  header.style.borderTop = '1px solid #666';
-  header.style.paddingTop = '0.5rem';
-  header.style.fontWeight = 'bold';
-  status.appendChild(header);
-  status.scrollTop = status.scrollHeight;
-
-  fightBtn.disabled = true;
-  startCombat(enemy);
-});
 
 function startCombat(enemy) {
   let playerTimer = 0;
@@ -209,7 +188,7 @@ function startCombat(enemy) {
   }, interval);
 }
 
-// Healing tick
+// Health regeneration
 setInterval(() => {
   if (player.alive && player.hp < player.maxHp) {
     player.regenBuffer += player.regen;
@@ -223,8 +202,29 @@ setInterval(() => {
   }
 }, 1000);
 
-// Initial setup
-document.body.addEventListener("click", (e) => {
-  showTooltip("Test Tooltip", e.pageX, e.pageY);
-  setTimeout(hideTooltip, 2000);
+// Combat button
+fightBtn.addEventListener('click', () => {
+  if (!player.alive) return;
+  const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
+  enemy.currentHp = enemy.hp;
+
+  const header = document.createElement('div');
+  header.textContent = `A wild ${enemy.name} appears!`;
+  header.style.color = '#facc15';
+  header.style.marginTop = '1rem';
+  header.style.borderTop = '1px solid #666';
+  header.style.paddingTop = '0.5rem';
+  header.style.fontWeight = 'bold';
+  status.appendChild(header);
+  status.scrollTop = status.scrollHeight;
+
+  fightBtn.disabled = true;
+  startCombat(enemy);
+});
+
+// Initialize on DOM ready
+document.addEventListener("DOMContentLoaded", () => {
+  applyEquipmentBonuses();
+  updateUI();
+  renderInventory();
 });
