@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const strDisplay = document.getElementById('statStr');
   const dexDisplay = document.getElementById('statDex');
   const tooltip = document.getElementById('tooltip');
+  const locationSelect = document.getElementById('locationSelect');
 
   window.tooltip = tooltip;
 
@@ -198,4 +199,67 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  function renderLocationUI() {
+    const locationInfo = document.getElementById("locationInfo");
+    const locationActions = document.getElementById("locationActions");
+    const loc = locations[currentLocation];
+    if (!loc) return;
+
+    locationInfo.innerHTML = `<h2>${loc.name}</h2><p>${loc.description}</p>`;
+    locationActions.innerHTML = "";
+
+    loc.actions.forEach((action) => {
+      const btn = document.createElement("button");
+      btn.textContent = capitalize(action);
+      btn.onclick = () => handleLocationAction(action);
+      locationActions.appendChild(btn);
+    });
+
+    locationSelect.value = currentLocation;
+  }
+
+  function handleLocationAction(action) {
+    const loc = locations[currentLocation];
+
+    if (action === "rest") {
+      const restCost = 100;
+      if (player.copper >= restCost) {
+        player.copper -= restCost;
+        player.hp = player.maxHp;
+        player.regenBuffer = 0;
+        log(`You rest and fully heal for ${formatCurrency(restCost)}.`);
+        updateUI();
+      } else {
+        log("You don't have enough money to rest.");
+      }
+    } else if (action === "shop") {
+      log("The shop is not implemented yet.");
+    } else if (action === "fight" || action === "explore") {
+      if (!loc.encounters || loc.encounters.length === 0) {
+        log("Nothing to fight here.");
+        return;
+      }
+      const enemyName = loc.encounters[Math.floor(Math.random() * loc.encounters.length)];
+      const enemy = JSON.parse(JSON.stringify(enemies.find(e => e.name === enemyName)));
+      enemy.currentHp = enemy.hp;
+      startCombat(enemy);
+    }
+  }
+
+  function switchLocation(newLoc) {
+    if (locations[newLoc]) {
+      currentLocation = newLoc;
+      log(`You travel to the ${locations[newLoc].name}.`);
+      renderLocationUI();
+    }
+  }
+
+  locationSelect.addEventListener("change", (e) => {
+    switchLocation(e.target.value);
+  });
+
+  applyEquipmentBonuses();
+  updateUI();
+  renderLocationUI();
 });
