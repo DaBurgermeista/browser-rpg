@@ -78,19 +78,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getItemTooltip(item) {
-    if (!item || !item.bonuses) return '';
-    const lines = [];
-    for (let stat in item.bonuses) {
-      const value = item.bonuses[stat];
-      if (stat === "attackSpeed") {
-        lines.push(`${value}ms attack delay (faster attacks)`);
-      } else {
-        const sign = value >= 0 ? "+" : "";
-        lines.push(`${sign}${value} ${stat}`);
-      }
-    }
-    return lines.join('\n');
+    return item?.tooltip || "An unidentified item.";
   }
+
 
   function showTooltip(text, x, y) {
     tooltip.style.left = x + 10 + 'px';
