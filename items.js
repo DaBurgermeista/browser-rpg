@@ -7,7 +7,7 @@ const items = {
       dexterity: +1
     },
     damageRange: [5, 10],
-    tooltip: `A dull dagger that still gets the job done.<br>
+    description: `A dull dagger that still gets the job done.<br>
       <span class="bonus">-300ms attack delay</span><br>
       <span class="bonus">+1 Dexterity</span>`
   },
