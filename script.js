@@ -99,7 +99,7 @@ function renderInventory() {
 
   player.inventory.forEach((item) => {
     const btn = document.createElement('button');
-    const itemName = Object.keys(items).find(k => items[k] === item);
+    const itemName = item.name || "Unknown";
     const tooltipText = getItemTooltip(item);
 
     btn.textContent = `${item.slot.toUpperCase()}: ${itemName}`;
@@ -125,9 +125,8 @@ function renderInventory() {
 
   for (let slot in equipped) {
     const item = player.equipment[slot];
-    const name = item ? Object.keys(items).find(k => items[k] === item) : "None";
+    const name = item?.name || "None";
     const tooltipText = getItemTooltip(item);
-
     equipped[slot].textContent = name;
     equipped[slot].onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
     equipped[slot].onmousemove = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
