@@ -19,18 +19,6 @@ const items = {
   }
 };
 
-function showTooltip(text, x, y) {
-  tooltip.style.left = x + 10 + 'px';
-  tooltip.style.top = y + 10 + 'px';
-  tooltip.innerText = text;
-  tooltip.style.display = 'block';
-}
-
-function hideTooltip() {
-  tooltip.style.display = 'none';
-}
-
-
 let player = {
   hp: 100,
   maxHp: 100,
@@ -65,16 +53,6 @@ function formatCurrency(cp) {
   return parts.join(', ');
 }
 
-function getItemTooltip(item) {
-  if (!item || !item.bonuses) return '';
-  const lines = [];
-  for (let stat in item.bonuses) {
-    let sign = item.bonuses[stat] >= 0 ? '+' : '';
-    lines.push(`${sign}${item.bonuses[stat]} ${stat}`);
-  }
-  return lines.join('\n');
-}
-
 function updateUI() {
   hpDisplay.textContent = Math.floor(player.hp);
   currencyDisplay.textContent = formatCurrency(player.copper);
@@ -92,6 +70,27 @@ function log(message) {
   entry.textContent = message;
   status.appendChild(entry);
   status.scrollTop = status.scrollHeight;
+}
+
+function getItemTooltip(item) {
+  if (!item || !item.bonuses) return '';
+  const lines = [];
+  for (let stat in item.bonuses) {
+    let sign = item.bonuses[stat] >= 0 ? '+' : '';
+    lines.push(`${sign}${item.bonuses[stat]} ${stat}`);
+  }
+  return lines.join('\n');
+}
+
+function showTooltip(text, x, y) {
+  tooltip.style.left = x + 10 + 'px';
+  tooltip.style.top = y + 10 + 'px';
+  tooltip.innerText = text;
+  tooltip.style.display = 'block';
+}
+
+function hideTooltip() {
+  tooltip.style.display = 'none';
 }
 
 function applyEquipmentBonuses() {
@@ -116,12 +115,13 @@ function renderInventory() {
   player.inventory.forEach((item) => {
     const btn = document.createElement('button');
     const itemName = Object.keys(items).find(k => items[k] === item);
-    btn.textContent = `${item.slot.toUpperCase()}: ${itemName}`;
     const tooltipText = getItemTooltip(item);
+
+    btn.textContent = `${item.slot.toUpperCase()}: ${itemName}`;
     btn.onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
     btn.onmousemove = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
     btn.onmouseleave = hideTooltip;
-    btn.title = getItemTooltip(item);
+
     btn.onclick = () => {
       player.equipment[item.slot] = item;
       player.inventory = player.inventory.filter(i => i !== item);
@@ -132,7 +132,6 @@ function renderInventory() {
     inventoryDiv.appendChild(btn);
   });
 
-  // Equipped display + unequip buttons
   const equipped = {
     weapon: document.getElementById('unequipWeapon'),
     armor: document.getElementById('unequipArmor'),
@@ -142,8 +141,9 @@ function renderInventory() {
   for (let slot in equipped) {
     const item = player.equipment[slot];
     const name = item ? Object.keys(items).find(k => items[k] === item) : "None";
-    equipped[slot].textContent = name;
     const tooltipText = getItemTooltip(item);
+
+    equipped[slot].textContent = name;
     equipped[slot].onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
     equipped[slot].onmousemove = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
     equipped[slot].onmouseleave = hideTooltip;
