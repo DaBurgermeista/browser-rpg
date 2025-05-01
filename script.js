@@ -3,8 +3,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const status = document.getElementById('status');
   const hpDisplay = document.getElementById('hp');
   const currencyDisplay = document.getElementById('currency');
+  const apsDisplay = document.getElementById('aps');
+  const strDisplay = document.getElementById('statStr');
+  const dexDisplay = document.getElementById('statDex');
   const tooltip = document.getElementById('tooltip');
-  window.tooltip = tooltip; // So tooltip is accessible in global functions
+  window.tooltip = tooltip;
 
   window.player = {
     hp: 100,
@@ -22,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     stats: {
       strength: 5,
       dexterity: 5
-    }
+    },
     equipment: {
       weapon: null,
       armor: null,
@@ -47,21 +50,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateUI() {
-  hpDisplay.textContent = Math.floor(player.hp);
-  currencyDisplay.textContent = formatCurrency(player.copper);
-  const aps = (1000 / player.attackSpeed).toFixed(2);
-  document.getElementById('aps').textContent = aps;
-  document.getElementById('statStr').textContent = player.stats.strength;
-  document.getElementById('statDex').textContent = player.stats.dexterity;
+    hpDisplay.textContent = Math.floor(player.hp);
+    currencyDisplay.textContent = formatCurrency(player.copper);
+    apsDisplay.textContent = (1000 / player.attackSpeed).toFixed(2);
+    strDisplay.textContent = player.stats.strength;
+    dexDisplay.textContent = player.stats.dexterity;
 
-  if (player.hp <= 0 && player.alive) {
-    player.hp = 0;
-    player.alive = false;
-    log(`You are dead!`);
-    fightBtn.disabled = true;
+    if (player.hp <= 0 && player.alive) {
+      player.hp = 0;
+      player.alive = false;
+      log(`You are dead!`);
+      fightBtn.disabled = true;
+    }
   }
-}
-
 
   function log(message) {
     const entry = document.createElement('div');
@@ -71,27 +72,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getItemTooltip(item) {
-  if (!item || !item.bonuses) return '';
-  const lines = [];
+    if (!item || !item.bonuses) return '';
+    const lines = [];
 
-  for (let stat in item.bonuses) {
-    const value = item.bonuses[stat];
-    const sign = value >= 0 ? '+' : '';
-    if (stat === 'attackSpeed') {
-      const newSpeed = player.baseAttackSpeed + value;
-      const aps = (1000 / newSpeed).toFixed(2);
-      lines.push(`Attack Speed: ${aps} attacks/sec`);
-    } else {
-      lines.push(`${sign}${value} ${stat}`);
+    for (let stat in item.bonuses) {
+      const value = item.bonuses[stat];
+      const sign = value >= 0 ? '+' : '';
+      if (stat === 'attackSpeed') {
+        const newSpeed = player.baseAttackSpeed + value;
+        const aps = (1000 / newSpeed).toFixed(2);
+        lines.push(`Attack Speed: ${aps} attacks/sec`);
+      } else {
+        lines.push(`${sign}${value} ${stat}`);
+      }
     }
+
+    return lines.join('\n');
   }
 
-  return lines.join('\n');
-}
-
-
   function showTooltip(text, x, y) {
-    if (!window.tooltip) return;
+    if (!tooltip) return;
     tooltip.style.left = x + 10 + 'px';
     tooltip.style.top = y + 10 + 'px';
     tooltip.innerText = text;
@@ -99,16 +99,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function hideTooltip() {
-    if (window.tooltip) {
+    if (tooltip) {
       tooltip.style.display = 'none';
     }
   }
 
   function applyEquipmentBonuses() {
-    player.stats = { ...player.baseStats }; // Reset to base
+    player.stats = { ...player.baseStats };
     player.attackSpeed = player.baseAttackSpeed;
     player.regen = 0.2;
-  
+
     for (let slot in player.equipment) {
       const item = player.equipment[slot];
       if (item?.bonuses) {
@@ -116,18 +116,17 @@ document.addEventListener("DOMContentLoaded", () => {
           if (stat in player.stats) {
             player.stats[stat] += item.bonuses[stat];
           } else {
-            player[stat] += item.bonuses[stat]; // For things like attackSpeed or regen
+            player[stat] += item.bonuses[stat]; // For non-core stats like regen or attackSpeed directly
           }
         }
       }
     }
 
-  // Dexterity affects attack speed
-  const dex = player.stats.dexterity;
-  player.attackSpeed = player.baseAttackSpeed - dex * 20;
-  if (player.attackSpeed < 500) player.attackSpeed = 500;
-}
-
+    // Dexterity modifies attack speed (lower is faster)
+    const dex = player.stats.dexterity;
+    player.attackSpeed = player.baseAttackSpeed - dex * 20;
+    if (player.attackSpeed < 500) player.attackSpeed = 500;
+  }
 
   function renderInventory() {
     const inventoryDiv = document.getElementById('inventory');
@@ -229,7 +228,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, interval);
   }
 
-  // Healing tick
   setInterval(() => {
     if (player.alive && player.hp < player.maxHp) {
       player.regenBuffer += player.regen;
@@ -243,7 +241,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 1000);
 
-  // Fight button handler
   fightBtn.addEventListener('click', () => {
     if (!player.alive) return;
     const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
@@ -263,7 +260,6 @@ document.addEventListener("DOMContentLoaded", () => {
     startCombat(enemy);
   });
 
-  // Run setup
   applyEquipmentBonuses();
   updateUI();
   renderInventory();
