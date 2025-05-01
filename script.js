@@ -69,6 +69,7 @@ function applyEquipmentBonuses() {
 }
 
 function renderInventory() {
+  const player = window.player;
   const inventoryDiv = document.getElementById('inventory');
   inventoryDiv.innerHTML = '';
 
