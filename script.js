@@ -9,26 +9,35 @@ let player = {
 };
 
 fightBtn.addEventListener('click', () => {
-  status.textContent = "Fighting... (5s)";
+  let timeLeft = 5;
+  status.textContent = `Fighting... (${timeLeft}s)`;
   fightBtn.disabled = true;
 
-  setTimeout(() => {
-    // Simulate taking damage
-    const damage = Math.floor(Math.random() * 10) + 1;
-    player.hp -= damage;
+  const countdown = setInterval(() => {
+    timeLeft--;
+    if (timeLeft > 0) {
+      status.textContent = `Fighting... (${timeLeft}s)`;
+    } else {
+      clearInterval(countdown);
 
-    // Reward gold
-    const reward = 10;
-    player.gold += reward;
+      // Simulate taking damage
+      const damage = Math.floor(Math.random() * 10) + 1;
+      player.hp -= damage;
 
-    // Clamp HP at 0
-    if (player.hp < 0) player.hp = 0;
+      // Reward gold
+      const reward = 10;
+      player.gold += reward;
 
-    // Update UI
-    status.textContent = `Victory! You took ${damage} damage and earned ${reward} gold.`;
-    hpDisplay.textContent = player.hp;
-    goldDisplay.textContent = player.gold;
+      // Clamp HP at 0
+      if (player.hp < 0) player.hp = 0;
 
-    fightBtn.disabled = false;
-  }, 5000);
+      // Update UI
+      status.textContent = `Victory! You took ${damage} damage and earned ${reward} gold.`;
+      hpDisplay.textContent = player.hp;
+      goldDisplay.textContent = player.gold;
+
+      fightBtn.disabled = false;
+    }
+  }, 1000);
 });
+
