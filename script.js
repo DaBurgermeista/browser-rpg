@@ -11,8 +11,15 @@ let player = {
   regenBuffer: 0,
   alive: true,
   dexterity: 5,
-  attackSpeed: 2000, // milliseconds per attack, can be adjusted by equipment
+  baseAttackSpeed: 2000, // base speed
+  attackSpeed: 2000,     // modified by gear
+  equipment: {
+    weapon: null,
+    armor: null,
+    accessory: null
+  }
 };
+
 function log(message) {
   const entry = document.createElement('div');
   entry.textContent = message;
