@@ -240,6 +240,7 @@ setInterval(() => {
 }, 1000);
 
 // Initial setup
-applyEquipmentBonuses();
-updateUI();
-renderInventory();
+document.body.addEventListener("click", (e) => {
+  showTooltip("Test Tooltip", e.pageX, e.pageY);
+  setTimeout(hideTooltip, 2000);
+});
