@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
   tooltip += `${item.description}<br>`;
 
   const bonuses = item.bonuses || {};
+  
   if (item.slot === "weapon" && Array.isArray(bonuses.damageRange)) {
     const [min, max] = bonuses.damageRange;
     const strBonus = Math.floor(player.strength / 2);
@@ -94,6 +95,9 @@ document.addEventListener("DOMContentLoaded", () => {
       tooltip += `<span class="bonus">+${value} ${capitalize(key)}</span><br>`;
     }
   }
+
+  return tooltip;
+}
 
   return tooltip;
 }
