@@ -38,7 +38,7 @@ fightBtn.addEventListener('click', () => {
   const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
   enemy.currentHp = enemy.hp;
 
-  log('A wild ${enemy.name} appears!');
+  log(`A wild ${enemy.name} appears!`);
   fightBtn.disabled = true;
 
   startCombat(enemy);
