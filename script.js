@@ -1,7 +1,7 @@
 const fightBtn = document.getElementById('fightBtn');
 const status = document.getElementById('status');
 const hpDisplay = document.getElementById('hp');
-const goldDisplay = document.getElementById('gold');
+const currencyDisplay = document.getElementById('currency');
 
 let player = {
   hp: 100,
@@ -35,7 +35,9 @@ function formatCurrency(cp) {
 
 function updateUI() {
   hpDisplay.textContent = Math.floor(player.hp);
-  goldDisplay.textContent = formatCurrency(player.copper);
+  const currencyDisplay = document.getElementById('currency');
+  currencyDisplay.textContent = formatCurrency(player.copper);
+
 
   if (player.hp <= 0 && player.alive) {
     player.hp = 0;
