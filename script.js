@@ -39,16 +39,15 @@ fightBtn.addEventListener('click', () => {
   enemy.currentHp = enemy.hp;
   
   // Add visual divider between fights
-  const divider = document.createElement('div');
-  divider.textContent = `--- New Battle: ${enemy.name} ---`;
-  divider.style.color = '#facc15'; // Yellow-ish
-  divider.style.marginTop = '1rem';
-  divider.style.borderTop = '1px solid #666';
-  divider.style.paddingTop = '0.5rem';
-  status.appendChild(divider);
+  const header = document.createElement('div');
+  header.textContent = `A wild ${enemy.name} appears!`;
+  header.style.color = '#facc15'; // golden yellow
+  header.style.marginTop = '1rem';
+  header.style.borderTop = '1px solid #666';
+  header.style.paddingTop = '0.5rem';
+  header.style.fontWeight = 'bold';
+  status.appendChild(header);
   status.scrollTop = status.scrollHeight;
-
-  log(`A wild ${enemy.name} appears!`);
   fightBtn.disabled = true;
 
   startCombat(enemy);
