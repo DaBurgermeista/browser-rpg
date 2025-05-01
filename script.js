@@ -16,7 +16,6 @@ function updateUI() {
   hpDisplay.textContent = Math.floor(player.hp);
   goldDisplay.textContent = player.gold;
 
-  // Check for death
   if (player.hp <= 0 && player.alive) {
     player.hp = 0;
     player.alive = false;
@@ -39,7 +38,12 @@ fightBtn.addEventListener('click', () => {
     } else {
       clearInterval(countdown);
 
-      const damage = Math.floor(Math.random() * 10) + 1;
+      // Pick random enemy
+      const enemy = enemies[Math.floor(Math.random() * enemies.length)];
+
+      // Enemy damage
+      const damage = Math.floor(Math.random() * (enemy.maxDamage - enemy.minDamage + 1)) + enemy.minDamage;
+
       player.hp -= damage;
       if (player.hp < 0) player.hp = 0;
 
@@ -47,7 +51,7 @@ fightBtn.addEventListener('click', () => {
       player.gold += reward;
 
       if (player.hp > 0) {
-        status.textContent = `Victory! You took ${damage} damage and earned ${reward} gold.`;
+        status.textContent = `You defeated a ${enemy.name}! You took ${damage} damage and earned ${reward} gold.`;
       }
 
       updateUI();
@@ -56,7 +60,7 @@ fightBtn.addEventListener('click', () => {
   }, 1000);
 });
 
-// Game tick - heals player over time
+// Game tick (healing)
 setInterval(() => {
   if (player.alive && player.hp < player.maxHp) {
     player.regenBuffer += player.regen;
