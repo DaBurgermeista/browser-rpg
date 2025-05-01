@@ -51,6 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
   currencyDisplay.textContent = formatCurrency(player.copper);
   const aps = (1000 / player.attackSpeed).toFixed(2);
   document.getElementById('aps').textContent = aps;
+  document.getElementById('statStr').textContent = player.stats.strength;
+  document.getElementById('statDex').textContent = player.stats.dexterity;
 
   if (player.hp <= 0 && player.alive) {
     player.hp = 0;
