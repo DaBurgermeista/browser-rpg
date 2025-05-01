@@ -29,37 +29,13 @@ function updateUI() {
 fightBtn.addEventListener('click', () => {
   if (!player.alive) return;
 
-  let timeLeft = 5;
-  status.textContent = `Fighting... (${timeLeft}s)`;
+  const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
+  enemy.currentHp = enemy.hp;
+
+  status.textContent = `A wild ${enemy.name} appears!`;
   fightBtn.disabled = true;
 
-  const countdown = setInterval(() => {
-    timeLeft--;
-    if (timeLeft > 0) {
-      status.textContent = `Fighting... (${timeLeft}s)`;
-    } else {
-      clearInterval(countdown);
-
-      // Pick random enemy
-      const enemy = enemies[Math.floor(Math.random() * enemies.length)];
-
-      // Enemy damage
-      const damage = Math.floor(Math.random() * (enemy.maxDamage - enemy.minDamage + 1)) + enemy.minDamage;
-
-      player.hp -= damage;
-      if (player.hp < 0) player.hp = 0;
-
-      const reward = 10;
-      player.gold += reward;
-
-      if (player.hp > 0) {
-        status.textContent = `You defeated a ${enemy.name}! You took ${damage} damage and earned ${reward} gold.`;
-      }
-
-      updateUI();
-      if (player.alive) fightBtn.disabled = false;
-    }
-  }, 1000);
+  startCombat(enemy);
 });
 
 // Game tick (healing)
@@ -75,3 +51,47 @@ setInterval(() => {
     }
   }
 }, 1000);
+
+function startCombat(enemy) {
+  let playerTimer = 0;
+  let enemyTimer = 0;
+  const interval = 100; // how often we check (ms)
+
+  const combatLoop = setInterval(() => {
+    if (!player.alive) {
+      clearInterval(combatLoop);
+      status.textContent = `You were slain by a ${enemy.name}.`;
+      return;
+    }
+
+    // Player attacks
+    playerTimer += interval;
+    if (playerTimer >= player.attackSpeed) {
+      playerTimer = 0;
+      const damage = Math.floor(Math.random() * 10) + 5;
+      enemy.currentHp -= damage;
+      status.textContent = `You strike the ${enemy.name} for ${damage} damage! (${Math.max(0, enemy.currentHp)} HP left)`;
+    }
+
+    // Enemy attacks
+    enemyTimer += interval;
+    if (enemyTimer >= enemy.attackPerSec) {
+      enemyTimer = 0;
+      const damage = Math.floor(Math.random() * (enemy.maxDamage - enemy.minDamage + 1)) + enemy.minDamage;
+      player.hp -= damage;
+      if (player.hp < 0) player.hp = 0;
+      status.textContent += ` The ${enemy.name} hits you for ${damage} damage.`;
+      updateUI();
+    }
+
+    // Check enemy death
+    if (enemy.currentHp <= 0) {
+      clearInterval(combatLoop);
+      const reward = 10;
+      player.gold += reward;
+      status.textContent = `You defeated the ${enemy.name}! +${reward} gold.`;
+      updateUI();
+      fightBtn.disabled = false;
+    }
+  }, interval);
+}
