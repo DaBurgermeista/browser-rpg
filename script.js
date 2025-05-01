@@ -36,6 +36,18 @@ document.addEventListener("DOMContentLoaded", () => {
       items["Tattered Cloak"],
       items["Lucky Coin"]
     ]
+    document.getElementById('statStr').addEventListener('mouseover', (e) =>
+      showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
+    document.getElementById('statStr').addEventListener('mousemove', (e) =>
+      showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
+    document.getElementById('statStr').addEventListener('mouseleave', hideTooltip);
+    
+    document.getElementById('statDex').addEventListener('mouseover', (e) =>
+      showTooltip('Dexterity increases your attack speed and precision.', e.pageX, e.pageY));
+    document.getElementById('statDex').addEventListener('mousemove', (e) =>
+      showTooltip('Dexterity increases your attack speed and precision.', e.pageX, e.pageY));
+    document.getElementById('statDex').addEventListener('mouseleave', hideTooltip);
+
   };
 
   function formatCurrency(cp) {
