@@ -13,6 +13,12 @@ let player = {
   dexterity: 5,
   attackSpeed: 2000, // milliseconds per attack, can be adjusted by equipment
 };
+function log(message) {
+  const entry = document.createElement('div');
+  entry.textContent = message;
+  status.appendChild(entry);
+  status.scrollTop = status.scrollHeight;
+}
 
 function updateUI() {
   hpDisplay.textContent = Math.floor(player.hp);
@@ -32,7 +38,7 @@ fightBtn.addEventListener('click', () => {
   const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
   enemy.currentHp = enemy.hp;
 
-  status.textContent = `A wild ${enemy.name} appears!`;
+  log('A wild ${enemy.name} appears!');
   fightBtn.disabled = true;
 
   startCombat(enemy);
@@ -60,7 +66,7 @@ function startCombat(enemy) {
   const combatLoop = setInterval(() => {
     if (!player.alive) {
       clearInterval(combatLoop);
-      status.textContent = `You were slain by a ${enemy.name}.`;
+      log(`You were slain by a ${enemy.name}.`);
       return;
     }
 
@@ -70,7 +76,7 @@ function startCombat(enemy) {
       playerTimer = 0;
       const damage = Math.floor(Math.random() * 10) + 5;
       enemy.currentHp -= damage;
-      status.textContent = `You strike the ${enemy.name} for ${damage} damage! (${Math.max(0, enemy.currentHp)} HP left)`;
+      log(`You strike the ${enemy.name} for ${damage} damage! (${Math.max(0, enemy.currentHp)} HP left)`);
     }
 
     // Enemy attacks
@@ -80,7 +86,7 @@ function startCombat(enemy) {
       const damage = Math.floor(Math.random() * (enemy.maxDamage - enemy.minDamage + 1)) + enemy.minDamage;
       player.hp -= damage;
       if (player.hp < 0) player.hp = 0;
-      status.textContent += ` The ${enemy.name} hits you for ${damage} damage.`;
+      log(` The ${enemy.name} hits you for ${damage} damage.`);
       updateUI();
     }
 
@@ -89,7 +95,7 @@ function startCombat(enemy) {
       clearInterval(combatLoop);
       const reward = 10;
       player.gold += reward;
-      status.textContent = `You defeated the ${enemy.name}! +${reward} gold.`;
+      log(`You defeated the ${enemy.name}! +${reward} gold.`);
       updateUI();
       fightBtn.disabled = false;
     }
