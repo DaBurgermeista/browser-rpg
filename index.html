@@ -69,6 +69,17 @@
 </head>
 <body>
   <h1>Browser RPG</h1>
+    <div id="locationUI" style="margin-bottom: 1rem;">
+    <label for="locationSelect">Current Location:</label>
+    <select id="locationSelect" onchange="switchLocation(this.value)">
+      <option value="town">Town</option>
+      <option value="woods">Woods</option>
+      <option value="dungeon">Dungeon</option>
+    </select>
+  
+    <div id="locationInfo" style="margin-top: 1rem;"></div>
+    <div id="locationActions" style="margin-top: 0.5rem;"></div>
+  </div>
 
   <div id="game">
     <!-- Left Column -->
@@ -114,6 +125,7 @@
   <div id="tooltip" style="display: none;"></div>
 
   <!-- Your game scripts -->
+  <script src="locations.js"></script>
   <script src="items.js"></script>
   <script src="enemies.js"></script>
   <script src="script.js"></script>
