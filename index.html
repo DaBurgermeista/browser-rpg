@@ -1,38 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Browser RPG</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
 <body>
   <h1>Browser RPG</h1>
-  <button id="fightBtn">Fight Enemy</button>
-  <div id="status" class="log-box"></div>
-  <div id="playerStats">
-    <h2>Player Stats</h2>
-    <p>HP: <span id="hp">100</span></p>
-    <p><span id="statStrWrapper">Strength: <span id="statStr">0</span></span></p>
-    <p><span id="statDexWrapper">Dexterity: <span id="statDex">0</span></span></p>
-    <p>Attack Speed: <span id="aps">0</span> attacks/sec</p>
-    <p>Currency: <span id="currency">0</span></p>
-  </div>
-  <div id="inventorySection">
-    <h2>Inventory</h2>
-    <div id="inventory"></div>
-  
-      <h3>Equipped</h3>
-      <ul>
-        <li>Weapon: <button id="unequipWeapon">None</button></li>
-        <li>Armor: <button id="unequipArmor">None</button></li>
-        <li>Accessory: <button id="unequipAccessory">None</button></li>
-      </ul>
+
+  <div id="game">
+    <!-- Left Column: Combat and Stats -->
+    <div id="mainPanel">
+      <button id="fightBtn">Fight Enemy</button>
+      <div id="status" class="log-box"></div>
+
+      <div id="playerStats">
+        <h2>Player Stats</h2>
+        <p><span id="statStrWrapper">Strength: <span id="statStr">0</span></span></p>
+        <p><span id="statDexWrapper">Dexterity: <span id="statDex">0</span></span></p>
+        <p>Attack Speed: <span id="aps">0</span> attacks/sec</p>
+        <p>HP: <span id="hp">100</span></p>
+        <p>Currency: <span id="currency">0</span> cp</p>
+      </div>
     </div>
-  <script src="items.js"></script>
+
+    <!-- Right Column: Inventory -->
+    <div id="sidePanel">
+      <div id="inventorySection">
+        <h2>Inventory</h2>
+        <div id="inventory"></div>
+
+        <h3>Equipped</h3>
+        <ul>
+          <li>Weapon: <button id="unequipWeapon">None</button></li>
+          <li>Armor: <button id="unequipArmor">None</button></li>
+          <li>Accessory: <button id="unequipAccessory">None</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script src="enemies.js"></script>
   <script src="script.js"></script>
-
+  <script src="items.js"></script>
   <div id="tooltip" style="display: none;"></div>
 </body>
-</html>
