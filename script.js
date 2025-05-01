@@ -4,28 +4,6 @@ const hpDisplay = document.getElementById('hp');
 const currencyDisplay = document.getElementById('currency');
 const tooltip = document.getElementById('tooltip');
 
-let player = {
-  hp: 100,
-  maxHp: 100,
-  copper: 0,
-  regen: 0.2,
-  regenBuffer: 0,
-  alive: true,
-  dexterity: 5,
-  baseAttackSpeed: 2000,
-  attackSpeed: 2000,
-  equipment: {
-    weapon: null,
-    armor: null,
-    accessory: null
-  },
-  inventory: [
-    items["Rusty Dagger"],
-    items["Tattered Cloak"],
-    items["Lucky Coin"]
-  ]
-};
-
 function formatCurrency(cp) {
   const gp = Math.floor(cp / 10000);
   const sp = Math.floor((cp % 10000) / 100);
@@ -224,6 +202,31 @@ fightBtn.addEventListener('click', () => {
 
 // Initialize on DOM ready
 document.addEventListener("DOMContentLoaded", () => {
+  let player = {
+    hp: 100,
+    maxHp: 100,
+    copper: 0,
+    regen: 0.2,
+    regenBuffer: 0,
+    alive: true,
+    dexterity: 5,
+    baseAttackSpeed: 2000,
+    attackSpeed: 2000,
+    equipment: {
+      weapon: null,
+      armor: null,
+      accessory: null
+    },
+    inventory: [
+      items["Rusty Dagger"],
+      items["Tattered Cloak"],
+      items["Lucky Coin"]
+    ]
+  };
+
+  // Then attach `player` to window so other functions can use it
+  window.player = player;
+
   applyEquipmentBonuses();
   updateUI();
   renderInventory();
