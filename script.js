@@ -3,10 +3,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const status = document.getElementById('status');
   const hpDisplay = document.getElementById('hp');
   const currencyDisplay = document.getElementById('currency');
-  const apsDisplay = document.getElementById('aps');
+  const apsLabel = document.getElementById('apsLabel');
   const strDisplay = document.getElementById('statStr');
   const dexDisplay = document.getElementById('statDex');
   const tooltip = document.getElementById('tooltip');
+
   window.tooltip = tooltip;
 
   window.player = {
@@ -16,16 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
     regen: 0.2,
     regenBuffer: 0,
     alive: true,
+    strength: 5,
+    dexterity: 5,
     baseAttackSpeed: 2000,
     attackSpeed: 2000,
-    baseStats: {
-      strength: 5,
-      dexterity: 5
-    },
-    stats: {
-      strength: 5,
-      dexterity: 5
-    },
     equipment: {
       weapon: null,
       armor: null,
@@ -49,19 +44,30 @@ document.addEventListener("DOMContentLoaded", () => {
     return parts.join(', ');
   }
 
+  function calculateAttackSpeed(player) {
+    const dexBonus = player.dexterity * 20;
+    const itemBonus = player.equipment.weapon?.bonuses?.attackSpeed || 0;
+    const result = player.baseAttackSpeed - dexBonus + itemBonus;
+    return Math.max(400, result); // minimum delay
+  }
+
+  function getSpeedLabel(ms) {
+    if (ms > 2000) return "Very Slow";
+    if (ms > 1600) return "Slow";
+    if (ms > 1200) return "Average";
+    if (ms > 800) return "Fast";
+    return "Very Fast";
+  }
+
   function updateUI() {
+    player.attackSpeed = calculateAttackSpeed(player);
     hpDisplay.textContent = Math.floor(player.hp);
     currencyDisplay.textContent = formatCurrency(player.copper);
-    apsDisplay.textContent = (1000 / player.attackSpeed).toFixed(2);
-    strDisplay.textContent = player.stats.strength;
-    dexDisplay.textContent = player.stats.dexterity;
+    strDisplay.textContent = player.strength;
+    dexDisplay.textContent = player.dexterity;
+    apsLabel.textContent = getSpeedLabel(player.attackSpeed);
 
-    if (player.hp <= 0 && player.alive) {
-      player.hp = 0;
-      player.alive = false;
-      log(`You are dead!`);
-      fightBtn.disabled = true;
-    }
+    renderInventory();
   }
 
   function log(message) {
@@ -74,24 +80,19 @@ document.addEventListener("DOMContentLoaded", () => {
   function getItemTooltip(item) {
     if (!item || !item.bonuses) return '';
     const lines = [];
-
     for (let stat in item.bonuses) {
       const value = item.bonuses[stat];
-      const sign = value >= 0 ? '+' : '';
-      if (stat === 'attackSpeed') {
-        const newSpeed = player.baseAttackSpeed + value;
-        const aps = (1000 / newSpeed).toFixed(2);
-        lines.push(`Attack Speed: ${aps} attacks/sec`);
+      if (stat === "attackSpeed") {
+        lines.push(`${value}ms attack delay (faster attacks)`);
       } else {
+        const sign = value >= 0 ? "+" : "";
         lines.push(`${sign}${value} ${stat}`);
       }
     }
-
     return lines.join('\n');
   }
 
   function showTooltip(text, x, y) {
-    if (!tooltip) return;
     tooltip.style.left = x + 10 + 'px';
     tooltip.style.top = y + 10 + 'px';
     tooltip.innerText = text;
@@ -99,52 +100,44 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function hideTooltip() {
-    if (tooltip) tooltip.style.display = 'none';
+    tooltip.style.display = 'none';
   }
 
   function applyEquipmentBonuses() {
-    player.stats = { ...player.baseStats };
-    player.attackSpeed = player.baseAttackSpeed;
+    player.strength = 5;
+    player.dexterity = 5;
     player.regen = 0.2;
 
     for (let slot in player.equipment) {
       const item = player.equipment[slot];
       if (item?.bonuses) {
         for (let stat in item.bonuses) {
-          if (stat in player.stats) {
-            player.stats[stat] += item.bonuses[stat];
-          } else {
-            player[stat] += item.bonuses[stat];
-          }
+          player[stat] += item.bonuses[stat];
         }
       }
     }
-
-    const dex = player.stats.dexterity;
-    player.attackSpeed = player.baseAttackSpeed - dex * 20;
-    if (player.attackSpeed < 400) player.attackSpeed = 400;
   }
 
   function renderInventory() {
     const inventoryDiv = document.getElementById('inventory');
     inventoryDiv.innerHTML = '';
 
-    player.inventory.forEach((item) => {
+    player.inventory.forEach((item, index) => {
       const btn = document.createElement('button');
-      const itemName = item.name || "Unnamed Item";
-      const tooltipText = getItemTooltip(item);
-
-      btn.textContent = `${item.slot.toUpperCase()}: ${itemName}`;
-      btn.onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
-      btn.onmousemove = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
+      btn.textContent = `${item.slot.toUpperCase()}: ${item.name}`;
+      btn.onmouseover = (e) => showTooltip(getItemTooltip(item), e.pageX, e.pageY);
+      btn.onmousemove = (e) => showTooltip(getItemTooltip(item), e.pageX, e.pageY);
       btn.onmouseleave = hideTooltip;
 
       btn.onclick = () => {
-        player.equipment[item.slot] = item;
-        player.inventory = player.inventory.filter(i => i !== item);
+        const slot = item.slot;
+        if (player.equipment[slot]) {
+          player.inventory.push(player.equipment[slot]);
+        }
+        player.equipment[slot] = item;
+        player.inventory.splice(index, 1);
         applyEquipmentBonuses();
         updateUI();
-        renderInventory();
       };
 
       inventoryDiv.appendChild(btn);
@@ -159,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let slot in equipped) {
       const item = player.equipment[slot];
       const name = item?.name || "None";
-      const tooltipText = getItemTooltip(item);
+      const tooltipText = item ? getItemTooltip(item) : "";
 
       equipped[slot].textContent = name;
       equipped[slot].onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
@@ -173,7 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
           player.equipment[slot] = null;
           applyEquipmentBonuses();
           updateUI();
-          renderInventory();
         };
       } else {
         equipped[slot].disabled = true;
@@ -187,6 +179,18 @@ document.addEventListener("DOMContentLoaded", () => {
     let enemyTimer = 0;
     const interval = 100;
 
+    const header = document.createElement('div');
+    header.textContent = `A wild ${enemy.name} appears!`;
+    header.style.color = '#facc15';
+    header.style.marginTop = '1rem';
+    header.style.borderTop = '1px solid #666';
+    header.style.paddingTop = '0.5rem';
+    header.style.fontWeight = 'bold';
+    status.appendChild(header);
+    status.scrollTop = status.scrollHeight;
+
+    fightBtn.disabled = true;
+
     const combatLoop = setInterval(() => {
       if (!player.alive) {
         clearInterval(combatLoop);
@@ -198,8 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (playerTimer >= player.attackSpeed) {
         playerTimer = 0;
         const baseDamage = Math.floor(Math.random() * 10) + 5;
-        const strBonus = Math.floor(player.stats.strength / 2);
-        const dexBonus = Math.floor(player.stats.dexterity / 4);
+        const strBonus = Math.floor(player.strength / 2);
+        const dexBonus = Math.floor(player.dexterity / 4);
         const damage = baseDamage + strBonus + dexBonus;
         enemy.currentHp -= damage;
         log(`You strike the ${enemy.name} for ${damage} damage! (${Math.max(0, enemy.currentHp)} HP left)`);
@@ -226,6 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, interval);
   }
 
+  // Healing tick
   setInterval(() => {
     if (player.alive && player.hp < player.maxHp) {
       player.regenBuffer += player.regen;
@@ -239,43 +244,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 1000);
 
+  // Fight button
   fightBtn.addEventListener('click', () => {
     if (!player.alive) return;
     const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
     enemy.currentHp = enemy.hp;
-
-    const header = document.createElement('div');
-    header.textContent = `A wild ${enemy.name} appears!`;
-    header.style.color = '#facc15';
-    header.style.marginTop = '1rem';
-    header.style.borderTop = '1px solid #666';
-    header.style.paddingTop = '0.5rem';
-    header.style.fontWeight = 'bold';
-    status.appendChild(header);
-    status.scrollTop = status.scrollHeight;
-
-    fightBtn.disabled = true;
     startCombat(enemy);
   });
 
-  // Stat explanation tooltips
-  const strWrapper = document.getElementById('statStrWrapper');
-const dexWrapper = document.getElementById('statDexWrapper');
+  // Stat tooltips
+  document.getElementById('statStrWrapper').addEventListener('mouseover', (e) =>
+    showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
+  document.getElementById('statStrWrapper').addEventListener('mousemove', (e) =>
+    showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
+  document.getElementById('statStrWrapper').addEventListener('mouseleave', hideTooltip);
 
-strWrapper.addEventListener('mouseover', (e) =>
-  showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
-strWrapper.addEventListener('mousemove', (e) =>
-  showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
-strWrapper.addEventListener('mouseleave', hideTooltip);
+  document.getElementById('statDexWrapper').addEventListener('mouseover', (e) =>
+    showTooltip('Dexterity increases attack speed and bonus precision.', e.pageX, e.pageY));
+  document.getElementById('statDexWrapper').addEventListener('mousemove', (e) =>
+    showTooltip('Dexterity increases attack speed and bonus precision.', e.pageX, e.pageY));
+  document.getElementById('statDexWrapper').addEventListener('mouseleave', hideTooltip);
 
-dexWrapper.addEventListener('mouseover', (e) =>
-  showTooltip('Dexterity increases your attack speed and adds bonus damage.', e.pageX, e.pageY));
-dexWrapper.addEventListener('mousemove', (e) =>
-  showTooltip('Dexterity increases your attack speed and adds bonus damage.', e.pageX, e.pageY));
-dexWrapper.addEventListener('mouseleave', hideTooltip);
-
-
+  // Initial load
   applyEquipmentBonuses();
   updateUI();
-  renderInventory();
 });
