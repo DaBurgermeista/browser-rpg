@@ -20,6 +20,10 @@ let player = {
   }
 };
 
+player.equipment.weapon = items["Rusty Dagger"];
+applyEquipmentBonuses();
+
+
 function log(message) {
   const entry = document.createElement('div');
   entry.textContent = message;
