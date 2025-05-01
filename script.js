@@ -24,7 +24,13 @@ function formatCurrency(cp) {
   const gp = Math.floor(cp / 10000);
   const sp = Math.floor((cp % 10000) / 100);
   const copper = cp % 100;
-  return `${gp} gp, ${sp} sp, ${copper} cp`;
+
+  const parts = [];
+  if (gp) parts.push(`${gp} gp`);
+  if (sp) parts.push(`${sp} sp`);
+  if (copper || parts.length === 0) parts.push(`${copper} cp`);
+
+  return parts.join(', ');
 }
 
 function updateUI() {
