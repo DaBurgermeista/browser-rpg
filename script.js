@@ -111,8 +111,7 @@ function startCombat(enemy) {
       clearInterval(combatLoop);
       const reward = 10;
       player.copper += reward;
-
-      log(`You defeated the ${enemy.name}! +${reward} cp.`);
+      log(`You defeated the ${enemy.name}! Looted ${formatCurrency(reward)}.`);
       updateUI();
       fightBtn.disabled = false;
     }
