@@ -90,12 +90,13 @@ function renderInventory() {
   const inventoryDiv = document.getElementById('inventory');
   inventoryDiv.innerHTML = '';
 
-  player.inventory.forEach((item, index) => {
+  player.inventory.forEach((item) => {
     const btn = document.createElement('button');
     const itemName = Object.keys(items).find(k => items[k] === item);
     btn.textContent = `${item.slot.toUpperCase()}: ${itemName}`;
     btn.onclick = () => {
       player.equipment[item.slot] = item;
+      player.inventory = player.inventory.filter(i => i !== item);
       applyEquipmentBonuses();
       updateUI();
       renderInventory();
@@ -103,17 +104,32 @@ function renderInventory() {
     inventoryDiv.appendChild(btn);
   });
 
-  document.getElementById('equippedWeapon').textContent = player.equipment.weapon
-    ? Object.keys(items).find(k => items[k] === player.equipment.weapon)
-    : "None";
+  // Equipped display + unequip buttons
+  const equipped = {
+    weapon: document.getElementById('unequipWeapon'),
+    armor: document.getElementById('unequipArmor'),
+    accessory: document.getElementById('unequipAccessory'),
+  };
 
-  document.getElementById('equippedArmor').textContent = player.equipment.armor
-    ? Object.keys(items).find(k => items[k] === player.equipment.armor)
-    : "None";
+  for (let slot in equipped) {
+    const item = player.equipment[slot];
+    const name = item ? Object.keys(items).find(k => items[k] === item) : "None";
+    equipped[slot].textContent = name;
 
-  document.getElementById('equippedAccessory').textContent = player.equipment.accessory
-    ? Object.keys(items).find(k => items[k] === player.equipment.accessory)
-    : "None";
+    if (item) {
+      equipped[slot].disabled = false;
+      equipped[slot].onclick = () => {
+        player.inventory.push(player.equipment[slot]);
+        player.equipment[slot] = null;
+        applyEquipmentBonuses();
+        updateUI();
+        renderInventory();
+      };
+    } else {
+      equipped[slot].disabled = true;
+      equipped[slot].onclick = null;
+    }
+  }
 }
 
 fightBtn.addEventListener('click', () => {
@@ -122,7 +138,6 @@ fightBtn.addEventListener('click', () => {
   const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
   enemy.currentHp = enemy.hp;
 
-  // Battle header
   const header = document.createElement('div');
   header.textContent = `A wild ${enemy.name} appears!`;
   header.style.color = '#facc15';
