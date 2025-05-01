@@ -52,6 +52,16 @@ function formatCurrency(cp) {
   return parts.join(', ');
 }
 
+function getItemTooltip(item) {
+  if (!item || !item.bonuses) return '';
+  const lines = [];
+  for (let stat in item.bonuses) {
+    let sign = item.bonuses[stat] >= 0 ? '+' : '';
+    lines.push(`${sign}${item.bonuses[stat]} ${stat}`);
+  }
+  return lines.join('\n');
+}
+
 function updateUI() {
   hpDisplay.textContent = Math.floor(player.hp);
   currencyDisplay.textContent = formatCurrency(player.copper);
@@ -94,6 +104,7 @@ function renderInventory() {
     const btn = document.createElement('button');
     const itemName = Object.keys(items).find(k => items[k] === item);
     btn.textContent = `${item.slot.toUpperCase()}: ${itemName}`;
+    btn.title = getItemTooltip(item);
     btn.onclick = () => {
       player.equipment[item.slot] = item;
       player.inventory = player.inventory.filter(i => i !== item);
@@ -115,6 +126,7 @@ function renderInventory() {
     const item = player.equipment[slot];
     const name = item ? Object.keys(items).find(k => items[k] === item) : "None";
     equipped[slot].textContent = name;
+    equipped[slot].title = getItemTooltip(item);
 
     if (item) {
       equipped[slot].disabled = false;
