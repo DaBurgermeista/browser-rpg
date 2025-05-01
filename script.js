@@ -259,17 +259,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Stat explanation tooltips
-  strDisplay.addEventListener('mouseover', (e) =>
-    showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
-  strDisplay.addEventListener('mousemove', (e) =>
-    showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
-  strDisplay.addEventListener('mouseleave', hideTooltip);
+  const strWrapper = document.getElementById('statStrWrapper');
+const dexWrapper = document.getElementById('statDexWrapper');
 
-  dexDisplay.addEventListener('mouseover', (e) =>
-    showTooltip('Dexterity increases your attack speed and adds bonus damage.', e.pageX, e.pageY));
-  dexDisplay.addEventListener('mousemove', (e) =>
-    showTooltip('Dexterity increases your attack speed and adds bonus damage.', e.pageX, e.pageY));
-  dexDisplay.addEventListener('mouseleave', hideTooltip);
+strWrapper.addEventListener('mouseover', (e) =>
+  showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
+strWrapper.addEventListener('mousemove', (e) =>
+  showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
+strWrapper.addEventListener('mouseleave', hideTooltip);
+
+dexWrapper.addEventListener('mouseover', (e) =>
+  showTooltip('Dexterity increases your attack speed and adds bonus damage.', e.pageX, e.pageY));
+dexWrapper.addEventListener('mousemove', (e) =>
+  showTooltip('Dexterity increases your attack speed and adds bonus damage.', e.pageX, e.pageY));
+dexWrapper.addEventListener('mouseleave', hideTooltip);
+
 
   applyEquipmentBonuses();
   updateUI();
