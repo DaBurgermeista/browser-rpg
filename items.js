@@ -5,7 +5,7 @@ window.items = {
     bonuses: {
       attackSpeed: -300,
       dexterity: +1,
-      damageRange: [1, 3]
+      damageRange: [1, 3],
     },
     tooltip: `A dull dagger that still gets the job done.<br>
       <span class="bonus">-300ms attack delay</span><br>
