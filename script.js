@@ -79,15 +79,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getItemTooltip(item) {
-  let tooltip = `<strong class="tooltip-title">${item.name}</strong><br>`;
-  tooltip += `${item.description}<br>`;
-
+  let tooltip = `<strong class="tooltip-title">${item.name}</strong><br>${item.description}<br>`;
   const bonuses = item.bonuses || {};
-  
-  if (item.slot === "weapon" && Array.isArray(bonuses.damageRange)) {
+
+  if (bonuses.damageRange) {
     const [min, max] = bonuses.damageRange;
     const strBonus = Math.floor(player.strength / 2);
-    tooltip += `<span class="bonus">Damage: ${min}–${max} + ${strBonus} STR bonus</span><br>`;
+    tooltip += `<span class="bonus">Damage: ${min}-${max} + ${strBonus} STR bonus</span><br>`;
   }
 
   for (const [key, value] of Object.entries(bonuses)) {
@@ -99,25 +97,23 @@ document.addEventListener("DOMContentLoaded", () => {
   return tooltip;
 }
 
-  return tooltip;
-}
-
 function getPlayerDamage() {
-  let min = 1;
-  let max = 3;
-
   const weapon = player.equipment.weapon;
-  if (weapon?.damageRange) {
-    [min, max] = weapon.damageRange;
+  let damage = Math.floor(Math.random() * 6) + 5; // default 5-10
+
+  if (weapon && weapon.bonuses.damageRange) {
+    const [min, max] = weapon.bonuses.damageRange;
+    damage = Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  const weaponDamage = Math.floor(Math.random() * (max - min + 1)) + min;
-  const strBonus = Math.floor(player.strength / 2);
-
-  return weaponDamage + strBonus;
+  damage += Math.floor(player.strength / 2);
+  return damage;
 }
 
 
+function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
   function showTooltip(text, x, y) {
     tooltip.style.left = x + 10 + 'px';
     tooltip.style.top = y + 10 + 'px';
