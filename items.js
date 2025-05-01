@@ -1,16 +1,14 @@
 const items = {
   "Rusty Dagger": {
-    name: "Rusty Dagger",
-    slot: "weapon",
-    bonuses: {
-      damageRange: [1, 4],
-      attackSpeed: -300,
-      dexterity: +1
-    },
-    description: `A dull dagger that still gets the job done.<br>
-      <span class="bonus">-300ms attack delay</span><br>
-      <span class="bonus">+1 Dexterity</span><br>
-  },
+  name: "Rusty Dagger",
+  slot: "weapon",
+  description: "A dull dagger that still gets the job done.",
+  bonuses: {
+    damageRange: [5, 10],
+    attackSpeed: -300,
+    dexterity: 1
+  }
+},
 
   "Tattered Cloak": {
     name: "Tattered Cloak",
