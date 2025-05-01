@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dexterity: 5,
     baseAttackSpeed: 2000,
     attackSpeed: 2000,
+    baseDamage: 5,
     equipment: {
       weapon: null,
       armor: null,
@@ -86,7 +87,19 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
+function getPlayerDamage() {
+  let bonusDamage = 0;
 
+  for (let slot in player.equipment) {
+    const item = player.equipment[slot];
+    if (item?.bonuses?.damage) {
+      bonusDamage += item.bonuses.damage;
+    }
+  }
+
+  bonusDamage += Math.floor(player.strength / 2);
+  return player.baseDamage + bonusDamage;
+}
 
   function showTooltip(text, x, y) {
     tooltip.style.left = x + 10 + 'px';
@@ -200,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const baseDamage = Math.floor(Math.random() * 10) + 5;
         const strBonus = Math.floor(player.strength / 2);
         const dexBonus = Math.floor(player.dexterity / 4);
-        const damage = baseDamage + strBonus + dexBonus;
+        const damage = getPlayerDamage();
         enemy.currentHp -= damage;
         log(`You strike the ${enemy.name} for ${damage} damage! (${Math.max(0, enemy.currentHp)} HP left)`);
       }
