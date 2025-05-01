@@ -31,3 +31,16 @@ button {
   font-size: 0.9rem;
   cursor: pointer;
 }
+#tooltip {
+  position: absolute;
+  background: #222;
+  color: #fff;
+  border: 1px solid #555;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: pre-line;
+  pointer-events: none;
+  z-index: 1000;
+  max-width: 250px;
+}
