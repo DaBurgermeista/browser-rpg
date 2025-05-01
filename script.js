@@ -58,14 +58,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getItemTooltip(item) {
-    if (!item || !item.bonuses) return '';
-    const lines = [];
-    for (let stat in item.bonuses) {
-      const sign = item.bonuses[stat] >= 0 ? '+' : '';
-      lines.push(`${sign}${item.bonuses[stat]} ${stat}`);
+  if (!item || !item.bonuses) return '';
+  const lines = [];
+
+  for (let stat in item.bonuses) {
+    const value = item.bonuses[stat];
+    const sign = value >= 0 ? '+' : '';
+    if (stat === 'attackSpeed') {
+      const newSpeed = player.baseAttackSpeed + value;
+      const aps = (1000 / newSpeed).toFixed(2);
+      lines.push(`Attack Speed: ${aps} attacks/sec`);
+    } else {
+      lines.push(`${sign}${value} ${stat}`);
     }
-    return lines.join('\n');
   }
+
+  return lines.join('\n');
+}
+
 
   function showTooltip(text, x, y) {
     if (!window.tooltip) return;
