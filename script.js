@@ -1,3 +1,5 @@
+// script.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const fightBtn = document.getElementById('fightBtn');
   const status = document.getElementById('status');
@@ -31,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
       boots: null,
       accessory: null,
       belt: null,
-      cloak:null
+      cloak: null
     },
     inventory: [
       items["Rusty Dagger"],
@@ -39,6 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
       items["Lucky Coin"]
     ]
   };
+
+  let currentLocation = "town";
 
   function formatCurrency(cp) {
     const gp = Math.floor(cp / 10000);
@@ -55,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const dexBonus = player.dexterity * 20;
     const itemBonus = player.equipment.weapon?.bonuses?.attackSpeed || 0;
     const result = player.baseAttackSpeed - dexBonus + itemBonus;
-    return Math.max(400, result); // minimum delay
+    return Math.max(400, result);
   }
 
   function getSpeedLabel(ms) {
@@ -73,7 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
     strDisplay.textContent = player.strength;
     dexDisplay.textContent = player.dexterity;
     apsLabel.textContent = getSpeedLabel(player.attackSpeed);
-
     renderInventory();
   }
 
@@ -85,41 +88,39 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getItemTooltip(item) {
-  let tooltip = `<strong class="tooltip-title">${item.name}</strong><br>${item.description}<br>`;
-  const bonuses = item.bonuses || {};
+    let tooltip = `<strong class="tooltip-title">${item.name}</strong><br>${item.description}<br>`;
+    const bonuses = item.bonuses || {};
 
-  if (bonuses.damageRange) {
-    const [min, max] = bonuses.damageRange;
-    const strBonus = Math.floor(player.strength / 2);
-    tooltip += `<span class="bonus">Damage: ${min}-${max} + ${strBonus} STR bonus</span><br>`;
-  }
-
-  for (const [key, value] of Object.entries(bonuses)) {
-    if (key !== "damageRange") {
-      tooltip += `<span class="bonus">+${value} ${capitalize(key)}</span><br>`;
+    if (bonuses.damageRange) {
+      const [min, max] = bonuses.damageRange;
+      const strBonus = Math.floor(player.strength / 2);
+      tooltip += `<span class="bonus">Damage: ${min}-${max} + ${strBonus} STR bonus</span><br>`;
     }
+
+    for (const [key, value] of Object.entries(bonuses)) {
+      if (key !== "damageRange") {
+        tooltip += `<span class="bonus">+${value} ${capitalize(key)}</span><br>`;
+      }
+    }
+
+    return tooltip;
   }
 
-  return tooltip;
-}
-
-function getPlayerDamage() {
-  const weapon = player.equipment.weapon;
-  let damage = Math.floor(Math.random() * 6) + 5; // default 5-10
-
-  if (weapon && weapon.bonuses.damageRange) {
-    const [min, max] = weapon.bonuses.damageRange;
-    damage = Math.floor(Math.random() * (max - min + 1)) + min;
+  function getPlayerDamage() {
+    const weapon = player.equipment.weapon;
+    let damage = Math.floor(Math.random() * 6) + 5;
+    if (weapon && weapon.bonuses.damageRange) {
+      const [min, max] = weapon.bonuses.damageRange;
+      damage = Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    damage += Math.floor(player.strength / 2);
+    return damage;
   }
 
-  damage += Math.floor(player.strength / 2);
-  return damage;
-}
+  function capitalize(word) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }
 
-
-function capitalize(word) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
-}
   function showTooltip(text, x, y) {
     tooltip.style.left = x + 10 + 'px';
     tooltip.style.top = y + 10 + 'px';
@@ -171,41 +172,31 @@ function capitalize(word) {
       inventoryDiv.appendChild(btn);
     });
 
-    const equipped = {
-      weapon: document.getElementById('unequipWeapon'),
-      offhand: document.getElementById('unequipOffhand'),
-      armor: document.getElementById('unequipArmor'),
-      helmet: document.getElementById('unequipHelmet'),
-      gloves: document.getElementById('unequipGloves'),
-      boots: document.getElementById('unequipBoots'),
-      accessory: document.getElementById('unequipAccessory'),
-      belt: document.getElementById('unequipBelt'),
-      cloak: document.getElementById('unequipCloak'),
-    };
+    const equippedSlots = ["weapon", "offhand", "armor", "helmet", "gloves", "boots", "accessory", "belt", "cloak"];
 
-    for (let slot in equipped) {
+    equippedSlots.forEach(slot => {
+      const btn = document.getElementById(`unequip${capitalize(slot)}`);
       const item = player.equipment[slot];
-      const name = item?.name || "None";
-      const tooltipText = item ? getItemTooltip(item) : "";
+      btn.textContent = item ? item.name : "None";
 
-      equipped[slot].textContent = name;
-      equipped[slot].onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
-      equipped[slot].onmousemove = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
-      equipped[slot].onmouseleave = hideTooltip;
+      const tooltipText = item ? getItemTooltip(item) : "";
+      btn.onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
+      btn.onmousemove = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
+      btn.onmouseleave = hideTooltip;
 
       if (item) {
-        equipped[slot].disabled = false;
-        equipped[slot].onclick = () => {
+        btn.disabled = false;
+        btn.onclick = () => {
           player.inventory.push(item);
           player.equipment[slot] = null;
           applyEquipmentBonuses();
           updateUI();
         };
       } else {
-        equipped[slot].disabled = true;
-        equipped[slot].onclick = null;
+        btn.disabled = true;
+        btn.onclick = null;
       }
-    }
+    });
   }
 
   function startCombat(enemy) {
@@ -261,7 +252,51 @@ function capitalize(word) {
     }, interval);
   }
 
-  // Healing tick
+  function renderLocationUI() {
+    const locationInfo = document.getElementById('locationInfo');
+    const locationActions = document.getElementById('locationActions');
+    const loc = locations[currentLocation];
+
+    locationInfo.innerHTML = `<h2>${loc.name}</h2><p>${loc.description}</p>`;
+    locationActions.innerHTML = '';
+
+    loc.actions.forEach(action => {
+      const btn = document.createElement('button');
+      btn.textContent = capitalize(action);
+      btn.onclick = () => handleLocationAction(action);
+      locationActions.appendChild(btn);
+    });
+  }
+
+  function handleLocationAction(action) {
+    if (action === 'rest') {
+      player.hp = player.maxHp;
+      player.regenBuffer = 0;
+      log("You take a moment to rest. HP fully restored.");
+      updateUI();
+    } else if (action === 'shop') {
+      log("The shop is not yet implemented.");
+    } else if (action === 'fight' || action === 'explore') {
+      const loc = locations[currentLocation];
+      if (!loc.encounters || loc.encounters.length === 0) {
+        log("Nothing to fight here.");
+        return;
+      }
+      const enemyName = loc.encounters[Math.floor(Math.random() * loc.encounters.length)];
+      const enemy = JSON.parse(JSON.stringify(enemies.find(e => e.name === enemyName)));
+      enemy.currentHp = enemy.hp;
+      startCombat(enemy);
+    }
+  }
+
+  function switchLocation(newLoc) {
+    if (locations[newLoc]) {
+      currentLocation = newLoc;
+      log(`You travel to the ${locations[newLoc].name}.`);
+      renderLocationUI();
+    }
+  }
+
   setInterval(() => {
     if (player.alive && player.hp < player.maxHp) {
       player.regenBuffer += player.regen;
@@ -275,7 +310,6 @@ function capitalize(word) {
     }
   }, 1000);
 
-  // Fight button
   fightBtn.addEventListener('click', () => {
     if (!player.alive) return;
     const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
@@ -283,20 +317,15 @@ function capitalize(word) {
     startCombat(enemy);
   });
 
-  // Stat tooltips
-  document.getElementById('statStrWrapper').addEventListener('mouseover', (e) =>
-    showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
-  document.getElementById('statStrWrapper').addEventListener('mousemove', (e) =>
-    showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
+  document.getElementById('statStrWrapper').addEventListener('mouseover', (e) => showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
+  document.getElementById('statStrWrapper').addEventListener('mousemove', (e) => showTooltip('Strength increases your melee damage.', e.pageX, e.pageY));
   document.getElementById('statStrWrapper').addEventListener('mouseleave', hideTooltip);
 
-  document.getElementById('statDexWrapper').addEventListener('mouseover', (e) =>
-    showTooltip('Dexterity increases attack speed and bonus precision.', e.pageX, e.pageY));
-  document.getElementById('statDexWrapper').addEventListener('mousemove', (e) =>
-    showTooltip('Dexterity increases attack speed and bonus precision.', e.pageX, e.pageY));
+  document.getElementById('statDexWrapper').addEventListener('mouseover', (e) => showTooltip('Dexterity increases attack speed and bonus precision.', e.pageX, e.pageY));
+  document.getElementById('statDexWrapper').addEventListener('mousemove', (e) => showTooltip('Dexterity increases attack speed and bonus precision.', e.pageX, e.pageY));
   document.getElementById('statDexWrapper').addEventListener('mouseleave', hideTooltip);
 
-  // Initial load
   applyEquipmentBonuses();
   updateUI();
+  renderLocationUI();
 });
