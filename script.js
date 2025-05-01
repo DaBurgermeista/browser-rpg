@@ -2,6 +2,7 @@ const fightBtn = document.getElementById('fightBtn');
 const status = document.getElementById('status');
 const hpDisplay = document.getElementById('hp');
 const currencyDisplay = document.getElementById('currency');
+const tooltip = document.getElementById('tooltip');
 
 const items = {
   "Rusty Dagger": {
@@ -17,6 +18,18 @@ const items = {
     bonuses: { dexterity: +2 }
   }
 };
+
+function showTooltip(text, x, y) {
+  tooltip.style.left = x + 10 + 'px';
+  tooltip.style.top = y + 10 + 'px';
+  tooltip.innerText = text;
+  tooltip.style.display = 'block';
+}
+
+function hideTooltip() {
+  tooltip.style.display = 'none';
+}
+
 
 let player = {
   hp: 100,
@@ -104,6 +117,10 @@ function renderInventory() {
     const btn = document.createElement('button');
     const itemName = Object.keys(items).find(k => items[k] === item);
     btn.textContent = `${item.slot.toUpperCase()}: ${itemName}`;
+    const tooltipText = getItemTooltip(item);
+    btn.onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
+    btn.onmousemove = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
+    btn.onmouseleave = hideTooltip;
     btn.title = getItemTooltip(item);
     btn.onclick = () => {
       player.equipment[item.slot] = item;
@@ -126,7 +143,10 @@ function renderInventory() {
     const item = player.equipment[slot];
     const name = item ? Object.keys(items).find(k => items[k] === item) : "None";
     equipped[slot].textContent = name;
-    equipped[slot].title = getItemTooltip(item);
+    const tooltipText = getItemTooltip(item);
+    equipped[slot].onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
+    equipped[slot].onmousemove = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
+    equipped[slot].onmouseleave = hideTooltip;
 
     if (item) {
       equipped[slot].disabled = false;
