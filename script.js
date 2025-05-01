@@ -40,15 +40,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateUI() {
-    hpDisplay.textContent = Math.floor(player.hp);
-    currencyDisplay.textContent = formatCurrency(player.copper);
-    if (player.hp <= 0 && player.alive) {
-      player.hp = 0;
-      player.alive = false;
-      log(`You are dead!`);
-      fightBtn.disabled = true;
-    }
+  hpDisplay.textContent = Math.floor(player.hp);
+  currencyDisplay.textContent = formatCurrency(player.copper);
+  const aps = (1000 / player.attackSpeed).toFixed(2);
+  document.getElementById('aps').textContent = aps;
+
+  if (player.hp <= 0 && player.alive) {
+    player.hp = 0;
+    player.alive = false;
+    log(`You are dead!`);
+    fightBtn.disabled = true;
   }
+}
+
 
   function log(message) {
     const entry = document.createElement('div');
