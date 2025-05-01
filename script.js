@@ -5,6 +5,7 @@ const goldDisplay = document.getElementById('gold');
 
 let player = {
   hp: 100,
+  maxHp: 100,
   gold: 0,
 };
 
@@ -28,7 +29,7 @@ fightBtn.addEventListener('click', () => {
       const reward = 10;
       player.gold += reward;
 
-      // Clamp HP at 0
+      // Clamp HP
       if (player.hp < 0) player.hp = 0;
 
       // Update UI
@@ -41,3 +42,11 @@ fightBtn.addEventListener('click', () => {
   }, 1000);
 });
 
+// Game tick - heals player over time
+setInterval(() => {
+  if (player.hp < player.maxHp) {
+    player.hp += 1;
+    if (player.hp > player.maxHp) player.hp = player.maxHp;
+    hpDisplay.textContent = player.hp;
+  }
+}, 1000);
