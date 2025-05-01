@@ -20,9 +20,16 @@ function log(message) {
   status.scrollTop = status.scrollHeight;
 }
 
+function formatCurrency(cp) {
+  const gp = Math.floor(cp / 10000);
+  const sp = Math.floor((cp % 10000) / 100);
+  const copper = cp % 100;
+  return `${gp} gp, ${sp} sp, ${copper} cp`;
+}
+
 function updateUI() {
   hpDisplay.textContent = Math.floor(player.hp);
-  goldDisplay.textContent = player.gold;
+  goldDisplay.textContent = formatCurrency(player.copper);
 
   if (player.hp <= 0 && player.alive) {
     player.hp = 0;
