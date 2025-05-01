@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function showTooltip(text, x, y) {
     tooltip.style.left = x + 10 + 'px';
     tooltip.style.top = y + 10 + 'px';
-    tooltip.innerText = text;
+    tooltip.innerHTML = text;
     tooltip.style.display = 'block';
   }
 
