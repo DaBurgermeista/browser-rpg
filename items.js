@@ -2,9 +2,17 @@ window.items = {
   "Rusty Dagger": {
     name: "Rusty Dagger",
     slot: "weapon",
-    bonuses: { attackSpeed: -300, dexterity: +1 },
-    tooltip: `A dull dagger that still gets the job done.<br><span class="bonus">-300ms attack delay</span><br><span class="bonus">+1 Dexterity</span>`
+    bonuses: {
+      attackSpeed: -300,
+      dexterity: +1,
+      damage: +3 // add this line
+    },
+    tooltip: `A dull dagger that still gets the job done.<br>
+      <span class="bonus">-300ms attack delay</span><br>
+      <span class="bonus">+1 Dexterity</span><br>
+      <span class="bonus">+3 Damage</span>`
   },
+
   "Tattered Cloak": {
     name: "Tattered Cloak",
     slot: "armor",
