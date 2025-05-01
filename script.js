@@ -13,9 +13,16 @@ document.addEventListener("DOMContentLoaded", () => {
     regen: 0.2,
     regenBuffer: 0,
     alive: true,
-    dexterity: 5,
     baseAttackSpeed: 2000,
     attackSpeed: 2000,
+    baseStats: {
+      strength: 5,
+      dexterity: 5
+    },
+    stats: {
+      strength: 5,
+      dexterity: 5
+    }
     equipment: {
       weapon: null,
       armor: null,
@@ -96,18 +103,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function applyEquipmentBonuses() {
+    player.stats = { ...player.baseStats }; // Reset to base
     player.attackSpeed = player.baseAttackSpeed;
     player.regen = 0.2;
-    player.dexterity = 5;
+  
     for (let slot in player.equipment) {
       const item = player.equipment[slot];
       if (item?.bonuses) {
         for (let stat in item.bonuses) {
-          player[stat] += item.bonuses[stat];
+          if (stat in player.stats) {
+            player.stats[stat] += item.bonuses[stat];
+          } else {
+            player[stat] += item.bonuses[stat]; // For things like attackSpeed or regen
+          }
         }
       }
     }
-  }
+
+  // Dexterity affects attack speed
+  const dex = player.stats.dexterity;
+  player.attackSpeed = player.baseAttackSpeed - dex * 20;
+  if (player.attackSpeed < 500) player.attackSpeed = 500;
+}
+
 
   function renderInventory() {
     const inventoryDiv = document.getElementById('inventory');
@@ -181,7 +199,9 @@ document.addEventListener("DOMContentLoaded", () => {
       playerTimer += interval;
       if (playerTimer >= player.attackSpeed) {
         playerTimer = 0;
-        const damage = Math.floor(Math.random() * 10) + 5;
+        const baseDamage = Math.floor(Math.random() * 10) + 5;
+        const strBonus = Math.floor(player.stats.strength / 2);
+        const damage = baseDamage + strBonus;
         enemy.currentHp -= damage;
         log(`You strike the ${enemy.name} for ${damage} damage! (${Math.max(0, enemy.currentHp)} HP left)`);
       }
