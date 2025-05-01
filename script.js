@@ -27,6 +27,23 @@ function log(message) {
   status.scrollTop = status.scrollHeight;
 }
 
+function applyEquipmentBonuses() {
+  // Reset to base stats
+  player.attackSpeed = player.baseAttackSpeed;
+  player.regen = 0.2;
+  player.dexterity = 5;
+
+  // Apply bonuses from each equipped item
+  for (let slot in player.equipment) {
+    const item = player.equipment[slot];
+    if (item && item.bonuses) {
+      for (let stat in item.bonuses) {
+        player[stat] += item.bonuses[stat];
+      }
+    }
+  }
+}
+
 function formatCurrency(cp) {
   const gp = Math.floor(cp / 10000);
   const sp = Math.floor((cp % 10000) / 100);
