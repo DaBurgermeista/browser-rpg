@@ -22,7 +22,7 @@ let player = {
   items["Rusty Dagger"],
   items["Tattered Cloak"],
   items["Lucky Coin"]
-],
+]
 
 };
 
