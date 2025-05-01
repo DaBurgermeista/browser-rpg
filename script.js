@@ -173,8 +173,14 @@ function capitalize(word) {
 
     const equipped = {
       weapon: document.getElementById('unequipWeapon'),
+      offhand: document.getElementById('unequipOffhand'),
       armor: document.getElementById('unequipArmor'),
+      helmet: document.getElementById('unequipHelmet'),
+      gloves: document.getElementById('unequipGloves'),
+      boots: document.getElementById('unequipBoots'),
       accessory: document.getElementById('unequipAccessory'),
+      belt: document.getElementById('unequipBelt'),
+      cloak: document.getElementById('unequipCloak'),
     };
 
     for (let slot in equipped) {
