@@ -17,7 +17,13 @@ let player = {
     weapon: null,
     armor: null,
     accessory: null
-  }
+  },
+  inventory: [
+  items["Rusty Dagger"],
+  items["Tattered Cloak"],
+  items["Lucky Coin"]
+],
+
 };
 
 player.equipment.weapon = items["Rusty Dagger"];
@@ -46,6 +52,35 @@ function applyEquipmentBonuses() {
       }
     }
   }
+}
+
+function renderInventory() {
+  const inventoryDiv = document.getElementById('inventory');
+  inventoryDiv.innerHTML = '';
+
+  player.inventory.forEach((item, index) => {
+    const btn = document.createElement('button');
+    btn.textContent = item.slot.toUpperCase() + ": " + Object.keys(items).find(k => items[k] === item);
+    btn.onclick = () => {
+      player.equipment[item.slot] = item;
+      applyEquipmentBonuses();
+      updateUI();
+      renderInventory();
+    };
+    inventoryDiv.appendChild(btn);
+  });
+
+  document.getElementById('equippedWeapon').textContent = player.equipment.weapon
+    ? Object.keys(items).find(k => items[k] === player.equipment.weapon)
+    : "None";
+
+  document.getElementById('equippedArmor').textContent = player.equipment.armor
+    ? Object.keys(items).find(k => items[k] === player.equipment.armor)
+    : "None";
+
+  document.getElementById('equippedAccessory').textContent = player.equipment.accessory
+    ? Object.keys(items).find(k => items[k] === player.equipment.accessory)
+    : "None";
 }
 
 function formatCurrency(cp) {
@@ -153,3 +188,4 @@ function startCombat(enemy) {
     }
   }, interval);
 }
+renderInventory();
