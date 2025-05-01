@@ -79,13 +79,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getItemTooltip(item) {
-    if (!item) return "An unidentified item.";
-  
-    return `
-      <strong class="tooltip-title">${item.name}</strong><br>
-      ${item.tooltip}
-    `;
+  if (!item) return "An unidentified item.";
+
+  let output = `<strong class="tooltip-title">${item.name}</strong><br>`;
+
+  if (item.tooltip) {
+    output += item.tooltip + "<br>";
   }
+
+  if (item.damageRange) {
+    const [min, max] = item.damageRange;
+    output += `<span class="bonus">Damage: ${min}–${max} + STR bonus</span>`;
+  }
+
+  return output.trim();
+}
 
 function getPlayerDamage() {
   let min = 1;
