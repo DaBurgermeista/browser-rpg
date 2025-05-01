@@ -54,7 +54,8 @@ A lightweight, click-based RPG that runs entirely in the browser. Features real-
 
 ## ✨ Screenshots
 
-*Coming soon!*
+![Gameplay Screenshot](https://github.com/user-attachments/assets/df6daca1-abb1-4653-a690-ae7448d03a48)
+
 
 ---
 
