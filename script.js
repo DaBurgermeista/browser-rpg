@@ -88,18 +88,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 function getPlayerDamage() {
-  let bonusDamage = 0;
+  let min = 1;
+  let max = 3;
 
-  for (let slot in player.equipment) {
-    const item = player.equipment[slot];
-    if (item?.bonuses?.damage) {
-      bonusDamage += item.bonuses.damage;
-    }
+  const weapon = player.equipment.weapon;
+  if (weapon?.damageRange) {
+    [min, max] = weapon.damageRange;
   }
 
-  bonusDamage += Math.floor(player.strength / 2);
-  return player.baseDamage + bonusDamage;
+  const weaponDamage = Math.floor(Math.random() * (max - min + 1)) + min;
+  const strBonus = Math.floor(player.strength / 2);
+
+  return weaponDamage + strBonus;
 }
+
 
   function showTooltip(text, x, y) {
     tooltip.style.left = x + 10 + 'px';
@@ -210,9 +212,6 @@ function getPlayerDamage() {
       playerTimer += interval;
       if (playerTimer >= player.attackSpeed) {
         playerTimer = 0;
-        const baseDamage = Math.floor(Math.random() * 10) + 5;
-        const strBonus = Math.floor(player.strength / 2);
-        const dexBonus = Math.floor(player.dexterity / 4);
         const damage = getPlayerDamage();
         enemy.currentHp -= damage;
         log(`You strike the ${enemy.name} for ${damage} damage! (${Math.max(0, enemy.currentHp)} HP left)`);
