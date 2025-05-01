@@ -1,4 +1,4 @@
-const items = {
+window.items = {
   "Rusty Dagger": {
     slot: "weapon",
     bonuses: { attackSpeed: -300, dexterity: +1 }
