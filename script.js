@@ -161,9 +161,30 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("level").textContent = player.level;
     document.getElementById("xp").textContent = player.xp;
     document.getElementById("xpToNext").textContent = player.xpToNext;
+    const xpPct = Math.floor((player.xp / player.xpToNext) * 100);
+    document.getElementById('compactXpText').textContent = `XP: ${player.xp} / ${player.xpToNext}`;
+
+    const xpBar = document.getElementById('compactPlayerXpBar');
+    if (xpBar) {
+      xpBar.style.width = `${xpPct}%`;
+    }
     document.getElementById("statCon").textContent = player.constitution.toFixed(3);
     player.attackSpeed = calculateAttackSpeed(player);
-    hpDisplay.textContent = Math.floor(player.hp);
+
+    const hpPct = Math.floor((player.hp / player.maxHp) * 100);
+    document.getElementById("compactHpText").textContent = `HP: ${Math.floor(player.hp)} / ${player.maxHp}`;
+    document.getElementById("compactPlayerHealthBar").style.width = `${hpPct}%`;
+    const compactPct = Math.floor((player.hp / player.maxHp) * 100);
+    const compactBar = document.getElementById("compactPlayerHealthBar");
+    if (compactBar) {
+      compactBar.style.width = `${compactPct}%`;
+    }
+
+    const hpDisplay = document.getElementById("hp");
+    if (hpDisplay) {
+      hpDisplay.textContent = Math.floor(player.hp);
+    }
+
     currencyDisplay.textContent = formatCurrency(player.copper);
     strDisplay.textContent = player.strength.toFixed(3);
     dexDisplay.textContent = player.dexterity.toFixed(3);
@@ -171,9 +192,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Player bar
     const pct = Math.floor((player.hp / player.maxHp) * 100);
-    document.getElementById("playerHealthBar").style.width = `${pct}%`;
-    document.getElementById("playerHpText").textContent =
-      `${Math.floor(player.hp)} / ${player.maxHp}`;
+    const bar = document.getElementById("playerHealthBar");
+    const hpText = document.getElementById("playerHpText");
+    if (bar) bar.style.width = `${pct}%`;
+    if (hpText) hpText.textContent = `${Math.floor(player.hp)} / ${player.maxHp}`;
 
     renderInventory();
   }
@@ -465,11 +487,49 @@ document.addEventListener("DOMContentLoaded", () => {
     switchLocation(e.target.value);
   });
 
-  document.getElementById('statConWrapper').addEventListener('mouseover', (e) =>
-    showTooltip('Constitution increases health gained on level-up.', e.pageX, e.pageY));
-  document.getElementById('statConWrapper').addEventListener('mousemove', (e) =>
-    showTooltip('Constitution increases health gained on level-up.', e.pageX, e.pageY));
-  document.getElementById('statConWrapper').addEventListener('mouseleave', hideTooltip);
+  // Tab switching logic
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+      const targetTab = button.dataset.tab;
+
+      // Remove active class from all buttons
+      document.querySelectorAll('.tab-button').forEach(btn =>
+        btn.classList.remove('active'));
+
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(tab =>
+        tab.classList.add('hidden'));
+
+      // Activate clicked button and show relevant tab
+      button.classList.add('active');
+      document.getElementById(targetTab).classList.remove('hidden');
+    });
+  });
+
+  // Tooltip binding (only once)
+  const conWrapper = document.getElementById('statConWrapper');
+  const strWrapper = document.getElementById('statStrWrapper');
+  const dexWrapper = document.getElementById('statDexWrapper');
+  if (conWrapper) {
+    conWrapper.addEventListener('mouseover', (e) =>
+      showTooltip('Constitution increases health gained on level-up.', e.pageX, e.pageY));
+    conWrapper.addEventListener('mousemove', (e) =>
+      showTooltip('Constitution increases health gained on level-up.', e.pageX, e.pageY));
+    conWrapper.addEventListener('mouseleave', hideTooltip);
+  }  
+  if (strWrapper) {
+    strWrapper.addEventListener('mouseover', (e) =>
+      showTooltip('Strength increases damage.', e.pageX, e.pageY));
+    strWrapper.addEventListener('mousemove', (e) =>
+      showTooltip('Strength increases damage.', e.pageX, e.pageY));
+    strWrapper.addEventListener('mouseleave', hideTooltip);
+  } 
+  if (dexWrapper) {
+    dexWrapper.addEventListener('mouseover', (e) =>
+      showTooltip('Dexterity increases attack speed.', e.pageX, e.pageY));
+    dexWrapper.addEventListener('mousemove', (e) =>
+      showTooltip('Dexterity increases attack speed.', e.pageX, e.pageY));
+  }
 
   applyEquipmentBonuses();
   updateUI();

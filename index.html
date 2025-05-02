@@ -1,4 +1,5 @@
-<body>
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -6,81 +7,117 @@
     <link rel="stylesheet" href="style.css" />
   </head>
 
-  <div id="gameWrapper">
-    <h1>Browser RPG</h1>
+  <body>
+    <div id="gameWrapper">
+      <h1>Browser RPG</h1>
 
-    <div id="locationUI" style="margin-bottom: 1rem">
-      <label for="locationSelect">Current Location:</label>
-      <select id="locationSelect">
-        <option value="town">Town</option>
-        <option value="woods">Woods</option>
-        <option value="dungeon">Dungeon</option>
-      </select>
+      <div id="locationUI" style="margin-bottom: 1rem">
+        <label for="locationSelect">Current Location:</label>
+        <select id="locationSelect">
+          <option value="town">Town</option>
+          <option value="woods">Woods</option>
+          <option value="dungeon">Dungeon</option>
+        </select>
 
-      <div id="locationInfo" style="margin-top: 1rem"></div>
-      <div id="locationActions" style="margin-top: 0.5rem"></div>
-    </div>
+        <div id="locationInfo" style="margin-top: 1rem"></div>
+        <div id="locationActions" style="margin-top: 0.5rem"></div>
+      </div>
 
-    <div id="game">
-      <!-- Left Column -->
-      <div id="mainPanel">
-        <div id="status" class="log-box"></div>
-
-        <!-- Enemy Health Bar -->
-        <div id="enemyHealthBarContainer" class="healthbar-wrapper">
-          <div id="enemyHealthBar" class="healthbar-fill"></div>
-          <div id="enemyHpText" class="hp-text">0 / 0</div>
-        </div>
-
-        <div id="playerStats">
-          <h2>Player Stats</h2>
-          <p>Level: <span id="level">1</span></p>
-          <p>XP: <span id="xp">0</span> / <span id="xpToNext">50</span></p>
-          <p><span id="statStrWrapper">Strength: <span id="statStr">5</span></span></p>
-          <p><span id="statDexWrapper">Dexterity: <span id="statDex">5</span></span></p>
-          <p><span id="statConWrapper">Constitution: <span id="statCon">5</span></span></p>
-          <p>Attack Speed: <span id="apsLabel">Fast</span></p>
-          <p>HP: <span id="hp">100</span></p>
-
-          <!-- Player Health Bar -->
-          <div id="playerHealthBarWrapper" class="healthbar-wrapper">
-            <div id="playerHealthBar" class="healthbar-fill"></div>
-            <div id="playerHpText" class="hp-text">100 / 100</div>
+      <!-- Game Layout -->
+      <div id="game">
+        <!-- Left Column -->
+        <div id="mainPanel">
+          <!-- Enemy HP Bar -->
+          <div id="enemyHealthBarContainer" class="healthbar-wrapper">
+            <div id="enemyHealthBar" class="healthbar-fill"></div>
+            <div id="enemyHpText" class="hp-text">0 / 0</div>
           </div>
 
-          <p>Currency: <span id="currency">0</span></p>
+          <!-- Log -->
+          <div id="status" class="log-box"></div>
         </div>
-      </div>
 
-      <!-- Right Column -->
-      <div id="sidePanel">
-        <div id="inventorySection">
-          <h2>Inventory</h2>
-          <div id="inventory"></div>
+        <!-- Right Column -->
+        <div id="sidePanel">
+          <!-- Compact Status -->
+          <div id="compactPlayerStatus">
+            <div id="compactHpText">HP: 100 / 100</div>
+            <div class="healthbar-wrapper compact">
+              <div
+                id="compactPlayerHealthBar"
+                class="healthbar-fill"
+                style="background: #4ade80"
+              ></div>
+            </div>
+            <div id="compactXpText">XP: 0 / 50</div>
+            <div class="healthbar-wrapper compact">
+              <div
+                id="compactPlayerXpBar"
+                class="healthbar-fill"
+                style="background: #60a5fa"
+              ></div>
+            </div>
+          </div>
 
-          <h3>Equipped</h3>
-          <ul>
-            <li>Weapon: <button id="unequipWeapon">None</button></li>
-            <li>Offhand: <button id="unequipOffhand">None</button></li>
-            <li>Armor: <button id="unequipArmor">None</button></li>
-            <li>Helmet: <button id="unequipHelmet">None</button></li>
-            <li>Gloves: <button id="unequipGloves">None</button></li>
-            <li>Boots: <button id="unequipBoots">None</button></li>
-            <li>Accessory: <button id="unequipAccessory">None</button></li>
-            <li>Belt: <button id="unequipBelt">None</button></li>
-            <li>Cloak: <button id="unequipCloak">None</button></li>
-          </ul>
+          <!-- Tabs -->
+          <div class="tabs">
+            <button class="tab-button active" data-tab="statsTab">Stats</button>
+            <button class="tab-button" data-tab="inventoryTab">
+              Inventory
+            </button>
+            <button class="tab-button" data-tab="equipmentTab">
+              Equipment
+            </button>
+            <button class="tab-button" data-tab="logTab">Log</button>
+          </div>
+
+          <!-- Tab Contents -->
+          <div class="tab-content" id="statsTab">
+            <h3>Player Stats</h3>
+            <p>Level: <span id="level">1</span></p>
+            <p>XP: <span id="xp">0</span> / <span id="xpToNext">50</span></p>
+            <p id="statStrWrapper">Strength: <span id="statStr">5</span></p>
+            <p id="statDexWrapper">Dexterity: <span id="statDex">5</span></p>
+            <p id="statConWrapper">Constitution: <span id="statCon">5</span></p>
+            <p>Attack Speed: <span id="apsLabel">Fast</span></p>
+            <p>Currency: <span id="currency">0 cp</span></p>
+          </div>
+
+          <div class="tab-content hidden" id="inventoryTab">
+            <h3>Inventory</h3>
+            <div id="inventory"></div>
+          </div>
+
+          <div class="tab-content hidden" id="equipmentTab">
+            <h3>Equipped</h3>
+            <ul>
+              <li>Weapon: <button id="unequipWeapon">None</button></li>
+              <li>Offhand: <button id="unequipOffhand">None</button></li>
+              <li>Armor: <button id="unequipArmor">None</button></li>
+              <li>Helmet: <button id="unequipHelmet">None</button></li>
+              <li>Gloves: <button id="unequipGloves">None</button></li>
+              <li>Boots: <button id="unequipBoots">None</button></li>
+              <li>Accessory: <button id="unequipAccessory">None</button></li>
+              <li>Belt: <button id="unequipBelt">None</button></li>
+              <li>Cloak: <button id="unequipCloak">None</button></li>
+            </ul>
+          </div>
+
+          <div class="tab-content hidden" id="logTab">
+            <h3>Combat Log</h3>
+            <div id="mirrorLog"></div>
+          </div>
+
         </div>
       </div>
     </div>
-  </div> <!-- End of gameWrapper -->
 
-  <!-- Tooltip container -->
-  <div id="tooltip" style="display: none"></div>
+    <div id="tooltip" style="display: none"></div>
 
-  <!-- Scripts -->
-  <script src="locations.js"></script>
-  <script src="items.js"></script>
-  <script src="enemies.js"></script>
-  <script src="script.js" defer></script>
-</body>
+    <!-- Scripts -->
+    <script src="locations.js"></script>
+    <script src="items.js"></script>
+    <script src="enemies.js"></script>
+    <script src="script.js" defer></script>
+  </body>
+</html>
