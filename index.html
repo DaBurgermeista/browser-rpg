@@ -12,7 +12,7 @@
       <h1>Browser RPG</h1>
 
       <div id="locationUI" style="margin-bottom: 1rem">
-        <label for="locationSelect">Current Location:</label>
+        <label for="locationSelect">Fast Travel:</label>
         <select id="locationSelect">
           <option value="town">Town</option>
           <option value="woods">Woods</option>
@@ -39,6 +39,11 @@
 
         <!-- Right Column -->
         <div id="sidePanel">
+          <!-- Discoverable Location List -->
+          <div id="locationListContainer">
+            <h3>Discovered Locations</h3>
+            <ul id="locationList"></ul>
+          </div>
           <!-- Compact Status -->
           <div id="compactPlayerStatus">
             <div id="compactHpText">HP: 100 / 100</div>
@@ -62,6 +67,7 @@
           <!-- Tabs -->
           <div class="tabs">
             <button class="tab-button active" data-tab="statsTab">Stats</button>
+            <button class="tab-button" data-tab="skillsTab">Skills</button>
             <button class="tab-button" data-tab="inventoryTab">
               Inventory
             </button>
@@ -86,6 +92,11 @@
           <div class="tab-content hidden" id="inventoryTab">
             <h3>Inventory</h3>
             <div id="inventory"></div>
+          </div>
+          
+          <div class="tab-content hidden" id="skillsTab">
+            <h3>Skills</h3>
+            <div id="skillsList"></div>
           </div>
 
           <div class="tab-content hidden" id="equipmentTab">

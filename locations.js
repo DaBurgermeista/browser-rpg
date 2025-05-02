@@ -2,20 +2,30 @@
 
 window.locations = {
   town: {
-    name: "Town Square",
-    description: "A peaceful village hub with shops and taverns.",
+    name: "Town",
+    description: "A bustling little town with everything you need.",
+    discovered: true,
+    isHub: true,
     actions: ["rest", "shop"],
+    connections: ["woods"]
   },
   woods: {
-    name: "Whispering Woods",
-    description: "Dense forest filled with wild creatures.",
-    actions: ["explore", "fight", "chop wood"],
-    encounters: ["Slime", "Wolf", "Bandit"],
+    name: "Woods",
+    description: "A dense forest full of mystery and creatures.",
+    discovered: true,
+    isHub: false,
+    actions: ["chop wood", "explore"],
+    connections: ["town", "clearing"],
+    trees: ["pine"],
+    requiredLevel: 2
   },
-  dungeon: {
-    name: "Forgotten Crypt",
-    description: "A dangerous, dark place crawling with monsters.",
-    actions: ["fight"],
-    encounters: ["Skeleton", "Dark Mage"],
-  },
+  clearing: {
+    name: "Forest Clearing",
+    description: "A peaceful opening in the woods, something seems off...",
+    discovered: false,
+    isHub: false,
+    actions: ["explore"],
+    connections: ["woods"],
+    requiredDiscovery: "woods"
+  }
 };

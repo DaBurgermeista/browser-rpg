@@ -198,4 +198,22 @@ button {
 #compactPlayerXpBar {
   background: #60a5fa;
 }
+#locationListContainer {
+  margin-top: 1rem;
+}
+
+#locationList {
+  list-style: none;
+  padding-left: 0;
+}
+
+#locationList li {
+  padding: 4px 0;
+  cursor: default;
+}
+
+#locationList li:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
 

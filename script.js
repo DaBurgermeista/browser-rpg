@@ -14,6 +14,18 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastMouseX = 0;
   let lastMouseY = 0;
 
+  // Woodcutting logic Variables
+  let currentTree = null;
+  const treeStages = [
+    "You steady your axe.",
+    "You swing and chip the bark.",
+    "You dig deeper into the trunk.",
+    "The tree creaks under pressure.",
+    "Sap trickles from the wound.",
+    "It’s almost ready to fall..."
+  ];
+
+
   document.addEventListener('mousemove', (e) => {
     lastMouseX = e.clientX;
     lastMouseY = e.clientY;
@@ -55,10 +67,85 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
   };
 
+  const playerSkills = {
+    woodcutting: {
+      xp: 0,
+      level: 1,
+      xpToNext: 83
+    }
+  };
+
+  // Tree types with required levels
+  const treeTypes = {
+    pine: {
+      name: "Pine",
+      requiredLevel: 1,
+      stages: [
+        "You steady your axe against the pine bark.",
+        "You make a clean cut into the soft wood.",
+        "Sap leaks from the tree as you continue chopping.",
+        "The tree begins to lean...",
+        "A loud crack echoes through the woods."
+      ],
+      xpPerStage: 10,
+      rewardCopper: () => 5 + Math.floor(Math.random() * 6) // 5 to 10 cp
+    }
+    // Add more trees later...
+  };
+  
   let currentLocation = "town";
   let woodcuttingInterval = null;
   let isChopping = false;
+
+  function getSkillLevel(skill) {
+    const xp = playerSkills[skill].xp;
+    let level = 1;
+    let totalXp = 0;
+
+    for (let i = 1; i <= 99; i++) {
+      totalXp += Math.floor(i + 300 * Math.pow(2, i / 7));
+      if (totalXp / 4 > xp) break;  // ← this division is crucial
+      level = i;
+    }
+
+    return level;
+  }
+
+  function addSkillXp(skill, amount) {
+    const skillObj = playerSkills[skill];
+    skillObj.xp += amount;
+
+    const newLevel = getSkillLevel(skill);
+    if (newLevel > skillObj.level) {
+      skillObj.level = newLevel;
+      log(`🪓 Your ${skill} level is now ${newLevel}!`);
+    }
+
+    // Recalculate xpToNext properly
+    let totalXp = 0;
+    for (let i = 1; i <= newLevel + 1; i++) {
+      totalXp += Math.floor(i + 300 * Math.pow(2, i / 7));
+    }
+    skillObj.xpToNext = Math.floor(totalXp / 4);
+
+    renderSkillTab();
+  }
+
+
+  // Render skills tab
+  function renderSkillTab() {
+    const container = document.getElementById("skillsList");
+    if (!container) return;
+
+    container.innerHTML = "";
+    Object.entries(playerSkills).forEach(([key, skill]) => {
+      const row = document.createElement("div");
+      row.textContent = `${capitalize(key)}: Level ${skill.level} (${skill.xp} XP)`;
+      container.appendChild(row);
+    });
+  }
   
+  /*
   function spawnFloatingText(text, x, y, color = '#4ade80') {
     // Fallback to center of the screen if mouse position is invalid
     if (x === 0 && y === 0) {
@@ -101,35 +188,90 @@ document.addEventListener("DOMContentLoaded", () => {
       span.remove();
     }, 1000);
   }
+  */
+    
+  function stopWoodcutting() {
+    if (!isChopping) return;
 
+    clearInterval(woodcuttingInterval);
+    woodcuttingInterval = null;
+    isChopping = false;
+    currentTree = null;
+    log("You stop chopping wood.");
 
- 
-  function toggleWoodcutting(button) {
-    if (isChopping) {
-      clearInterval(woodcuttingInterval);
-      isChopping = false;
-      log("You stop chopping wood.");
-      button.textContent = "Chop Wood";
-    } else {
-      log("You begin chopping wood....");
-      isChopping = true;
-      button.textContent = "Stop Chopping";
-
-      woodcuttingInterval = setInterval(() => {
-        player.strength += 0.005;
-        player.copper += 2;
-
-        spawnFloatingText('+2 cp', lastMouseX, lastMouseY, '#facc15');
-        spawnFloatingText('+0.005 STR', lastMouseX, lastMouseY - 20, '#4ade80');
-
-        console.log(`Mouse at: ${lastMouseX}, ${lastMouseY}`);
-
-
-        updateUI();
-      }, 2000);
-    }
+    const btn = document.querySelector("#locationActions button.chop-button");
+    if (btn) btn.textContent = "Chop Wood";
   }
 
+  function startNewTree() {
+    const loc = locations[currentLocation];
+    const availableTrees = loc.trees || [];
+
+    const eligibleTrees = availableTrees.filter(
+      key => getSkillLevel("woodcutting") >= treeTypes[key].requiredLevel
+    );
+
+    if (eligibleTrees.length === 0) {
+      log("You don't have the skill to chop any trees here.");
+      stopWoodcutting();
+      return;
+    }
+
+    const chosenKey = eligibleTrees[Math.floor(Math.random() * eligibleTrees.length)];
+    const chosenTree = treeTypes[chosenKey];
+
+    currentTree = {
+      key: chosenKey,
+      type: chosenTree,
+      stage: 0,
+      totalStages: chosenTree.stages.length
+    };
+  }
+  
+  function toggleWoodcutting() {
+    const btn = document.querySelector("#locationActions button.chop-button");
+
+    if (isChopping) {
+      stopWoodcutting();
+      if (btn) btn.textContent = "Chop Wood";
+      return;
+    }
+
+    // Prevent multiple intervals just in case
+    stopWoodcutting();
+
+    log("You grip your axe and face the tree...");
+    isChopping = true;
+    startNewTree();
+    if (btn) btn.textContent = "Stop Chopping";
+
+    woodcuttingInterval = setInterval(() => {
+      if (!isChopping || !currentTree) {
+        stopWoodcutting();
+        return;
+      }
+
+      const stage = currentTree.stage++;
+      addSkillXp("woodcutting", currentTree.type.xpPerStage);
+
+      if (stage < currentTree.totalStages) {
+        log(currentTree.type.stages[Math.min(stage, currentTree.totalStages - 1)]);
+      } else {
+        const reward = currentTree.type.rewardCopper();
+        player.copper += reward;
+        log(`🪵 The ${currentTree.type.name} tree crashes down! You earn ${reward} copper.`);
+        currentTree = null;
+
+        if (currentLocation === "woods" && !locations["clearing"].discovered) {
+          if (Math.random() < 0.05) unlockLocation("clearing");
+        }
+
+        startNewTree();
+      }
+
+      updateUI();
+    }, 2000);
+  }
 
   function formatCurrency(cp) {
     const gp = Math.floor(cp / 10000);
@@ -431,6 +573,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loc.actions.forEach((action) => {
       const btn = document.createElement("button");
+      btn.classList.add("chop-button");
       btn.textContent = capitalize(action);
       btn.onclick = (e) => handleLocationAction(action, e);
       locationActions.appendChild(btn);
@@ -439,44 +582,105 @@ document.addEventListener("DOMContentLoaded", () => {
     locationSelect.value = currentLocation;
   }
 
-  function handleLocationAction(action, event) {
-    const loc = locations[currentLocation];
+  const locationList = document.getElementById("locationList");
 
-    if (action === "rest") {
-      const restCost = 100;
-      if (player.copper >= restCost) {
-        player.copper -= restCost;
-        player.hp = player.maxHp;
-        player.regenBuffer = 0;
-        log(`You rest and fully heal for ${formatCurrency(restCost)}.`);
-        updateUI();
+  function renderLocationList() {
+    if (!locationList) return;
+    locationList.innerHTML = "";
+
+    const loc = locations[currentLocation];
+    if (!loc || !loc.connections) return;
+
+    loc.connections.forEach(key => {
+      const target = locations[key];
+      const li = document.createElement("li");
+
+      if (target.discovered) {
+        li.textContent = target.name;
+        li.style.cursor = "pointer";
+        li.onclick = () => {
+          currentLocation = key;
+          log(`You travel to the ${target.name}.`);
+          renderLocationUI();
+          renderLocationList();
+        };
       } else {
-        log("You don't have enough money to rest.");
+        li.textContent = "???";
+        li.style.color = "#888";
       }
-    } else if (action === "shop") {
-      log("The shop is not implemented yet.");
-    } else if (action === "fight" || action === "explore") {
-      if (!loc.encounters || loc.encounters.length === 0) {
-        log("Nothing to fight here.");
-        return;
+
+      locationList.appendChild(li);
+    });
+  }
+
+  function renderLocationDropdown() {
+    locationSelect.innerHTML = "";
+    Object.entries(locations).forEach(([key, loc]) => {
+      if (loc.discovered && loc.isHub) {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = loc.name;
+        locationSelect.appendChild(option);
       }
-      const enemyName =
-        loc.encounters[Math.floor(Math.random() * loc.encounters.length)];
-      const enemy = JSON.parse(
-        JSON.stringify(enemies.find((e) => e.name === enemyName)),
-      );
-      enemy.currentHp = enemy.hp;
-      startCombat(enemy);
-    } else if (action === "chop wood") {
-      const btn = Array.from(document.querySelectorAll("#locationActions button"))
-        .find(b => b.textContent.toLowerCase().includes("chop"));
-      if (btn) toggleWoodcutting(event);
+    });
+    locationSelect.value = currentLocation;
+  }
+
+  function unlockLocation(key) {
+    const loc = locations[key];
+    if (loc && !loc.discovered) {
+      loc.discovered = true;
+      log(`You discovered ${loc.name}!`);
+      renderLocationDropdown();
+      renderLocationList();
     }
   }
+  
+    function handleLocationAction(action, event) {
+      const loc = locations[currentLocation];
+
+      // Only stop woodcutting for actions other than chopping
+      if (action !== "chop wood") {
+        stopWoodcutting();
+      }
+
+      if (action === "rest") {
+        const restCost = 100;
+        if (player.copper >= restCost) {
+          player.copper -= restCost;
+          player.hp = player.maxHp;
+          player.regenBuffer = 0;
+          log(`You rest and fully heal for ${formatCurrency(restCost)}.`);
+          updateUI();
+        } else {
+          log("You don't have enough money to rest.");
+        }
+      } else if (action === "shop") {
+        log("The shop is not implemented yet.");
+      } else if (action === "fight" || action === "explore") {
+        if (!loc.encounters || loc.encounters.length === 0) {
+          log("Nothing to fight here.");
+          return;
+        }
+        const enemyName =
+          loc.encounters[Math.floor(Math.random() * loc.encounters.length)];
+        const enemy = JSON.parse(
+          JSON.stringify(enemies.find((e) => e.name === enemyName)),
+        );
+        enemy.currentHp = enemy.hp;
+        startCombat(enemy);
+      } else if (action === "chop wood") {
+        const btn = Array.from(document.querySelectorAll("#locationActions button"))
+          .find(b => b.textContent.toLowerCase().includes("chop"));
+        if (btn) toggleWoodcutting(event);
+      }
+    }
+
 
 
   window.switchLocation = function (newLoc) {
     if (locations[newLoc]) {
+      stopWoodcutting();
       currentLocation = newLoc;
       log(`You travel to the ${locations[newLoc].name}.`);
       renderLocationUI();
@@ -534,6 +738,9 @@ document.addEventListener("DOMContentLoaded", () => {
   applyEquipmentBonuses();
   updateUI();
   renderLocationUI();
+  renderLocationList();
+  renderLocationDropdown();
+  renderSkillTab();
   
   // Passive health regeneration every second
   setInterval(() => {
