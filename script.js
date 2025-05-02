@@ -11,6 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const tooltip = document.getElementById("tooltip");
   const locationSelect = document.getElementById("locationSelect");
 
+  let lastMouseX = 0;
+  let lastMouseY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+  });
+  
   window.tooltip = tooltip;
 
   window.player = {
@@ -50,9 +58,54 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentLocation = "town";
   let woodcuttingInterval = null;
   let isChopping = false;
+  
+  function spawnFloatingText(text, x, y, color = '#4ade80') {
+    // Fallback to center of the screen if mouse position is invalid
+    if (x === 0 && y === 0) {
+      const fallback = document.getElementById('locationActions');
+      const rect = fallback.getBoundingClientRect();
+      x = rect.left + rect.width / 2;
+      y = rect.top + rect.height / 2;
+    }
 
-  function toggleWoodcutting(button){
-    if (isChopping){
+    const wrapper = document.getElementById('gameWrapper');
+    const span = document.createElement('span'); // Moved up
+
+    span.textContent = text;
+
+    // Initial position and styles
+    Object.assign(span.style, {
+      position: 'absolute',
+      left: `${x}px`,
+      top: `${y}px`,
+      color: color,
+      fontSize: '0.9rem',
+      fontWeight: 'bold',
+      opacity: '1',
+      pointerEvents: 'none',
+      zIndex: '9999',
+      transform: 'translateY(0px)',
+      transition: 'transform 1s ease-out, opacity 1s ease-out'
+    });
+
+    wrapper.appendChild(span); // Now properly appending the created span
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+      span.style.transform = 'translateY(-40px)';
+      span.style.opacity = '0';
+    });
+
+    // Remove after animation
+    setTimeout(() => {
+      span.remove();
+    }, 1000);
+  }
+
+
+ 
+  function toggleWoodcutting(button) {
+    if (isChopping) {
       clearInterval(woodcuttingInterval);
       isChopping = false;
       log("You stop chopping wood.");
@@ -62,14 +115,21 @@ document.addEventListener("DOMContentLoaded", () => {
       isChopping = true;
       button.textContent = "Stop Chopping";
 
-      woodcuttingInterval = setInterval(() =>{
+      woodcuttingInterval = setInterval(() => {
         player.strength += 0.005;
         player.copper += 2;
-        log("You swing your axe. +2 cp, +0.005 STR");
+
+        spawnFloatingText('+2 cp', lastMouseX, lastMouseY, '#facc15');
+        spawnFloatingText('+0.005 STR', lastMouseX, lastMouseY - 20, '#4ade80');
+
+        console.log(`Mouse at: ${lastMouseX}, ${lastMouseY}`);
+
+
         updateUI();
       }, 2000);
     }
   }
+
 
   function formatCurrency(cp) {
     const gp = Math.floor(cp / 10000);
@@ -350,14 +410,14 @@ document.addEventListener("DOMContentLoaded", () => {
     loc.actions.forEach((action) => {
       const btn = document.createElement("button");
       btn.textContent = capitalize(action);
-      btn.onclick = () => handleLocationAction(action);
+      btn.onclick = (e) => handleLocationAction(action, e);
       locationActions.appendChild(btn);
     });
 
     locationSelect.value = currentLocation;
   }
 
-  function handleLocationAction(action) {
+  function handleLocationAction(action, event) {
     const loc = locations[currentLocation];
 
     if (action === "rest") {
@@ -386,10 +446,12 @@ document.addEventListener("DOMContentLoaded", () => {
       enemy.currentHp = enemy.hp;
       startCombat(enemy);
     } else if (action === "chop wood") {
-      const btn = Array.from(document.querySelectorAll("#locationActions button")).find(b => b.textContent.toLowerCase().includes("chop"));
-      toggleWoodcutting(btn);
+      const btn = Array.from(document.querySelectorAll("#locationActions button"))
+        .find(b => b.textContent.toLowerCase().includes("chop"));
+      if (btn) toggleWoodcutting(event);
     }
   }
+
 
   window.switchLocation = function (newLoc) {
     if (locations[newLoc]) {
@@ -408,7 +470,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('statConWrapper').addEventListener('mousemove', (e) =>
     showTooltip('Constitution increases health gained on level-up.', e.pageX, e.pageY));
   document.getElementById('statConWrapper').addEventListener('mouseleave', hideTooltip);
-  document.getElementById("woodcutBtn").addEventListener("click", toggleWoodcutting);
 
   applyEquipmentBonuses();
   updateUI();

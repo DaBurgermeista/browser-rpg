@@ -1,9 +1,13 @@
-body {
+html, body {
   font-family: sans-serif;
   background: #111;
   color: white;
   margin: 0;
   padding: 2rem;
+}
+
+#gameWrapper {
+  position: relative;
 }
 
 #game {
@@ -71,10 +75,8 @@ button {
   display: block;
 }
 
-/* === Health Bar Wrappers === */
-.healthbar-wrapper,
-#playerHealthBarContainer,
-#enemyHealthBarContainer {
+/* Health bars */
+.healthbar-wrapper {
   width: 100%;
   max-width: 200px;
   height: 20px;
@@ -84,19 +86,60 @@ button {
   overflow: hidden;
   margin-top: 5px;
   margin-bottom: 1rem;
+  position: relative;
 }
 
-/* === Health Fill Bars === */
-#playerHealthBar {
+.healthbar-fill {
   height: 100%;
-  background: #4ade80;
   width: 100%;
   transition: width 0.3s ease;
+}
+
+#playerHealthBar {
+  background: #4ade80;
 }
 
 #enemyHealthBar {
-  height: 100%;
   background: #ef4444;
+}
+
+.hp-text {
+  position: absolute;
   width: 100%;
-  transition: width 0.3s ease;
+  text-align: center;
+  font-size: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  pointer-events: none;
+}
+
+#enemyHealthBarContainer {
+  display: none;
+  margin-top: 1rem;
+}
+
+/* Floating text */
+.floating-text {
+  position: absolute;
+  font-size: 0.9rem;
+  font-weight: bold;
+  pointer-events: none;
+  opacity: 1;
+  animation: floatUp 1s ease-out;
+  z-index: 9999;
+  transform: translateY(0);
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
 }
