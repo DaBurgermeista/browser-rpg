@@ -9,7 +9,7 @@ window.locations = {
   woods: {
     name: "Whispering Woods",
     description: "Dense forest filled with wild creatures.",
-    actions: ["explore", "fight"],
+    actions: ["explore", "fight", "chop wood"],
     encounters: ["Slime", "Wolf", "Bandit"],
   },
   dungeon: {

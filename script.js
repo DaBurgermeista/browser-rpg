@@ -16,12 +16,16 @@ document.addEventListener("DOMContentLoaded", () => {
   window.player = {
     hp: 100,
     maxHp: 100,
+    level: 1,
+    xp: 0,
+    xpToNext: 50,
     copper: 0,
     regen: 0.2,
     regenBuffer: 0,
     alive: true,
     strength: 5,
     dexterity: 5,
+    constitution: 5,
     baseAttackSpeed: 2000,
     attackSpeed: 2000,
     baseDamage: 5,
@@ -44,6 +48,28 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let currentLocation = "town";
+  let woodcuttingInterval = null;
+  let isChopping = false;
+
+  function toggleWoodcutting(button){
+    if (isChopping){
+      clearInterval(woodcuttingInterval);
+      isChopping = false;
+      log("You stop chopping wood.");
+      button.textContent = "Chop Wood";
+    } else {
+      log("You begin chopping wood....");
+      isChopping = true;
+      button.textContent = "Stop Chopping";
+
+      woodcuttingInterval = setInterval(() =>{
+        player.strength += 0.005;
+        player.copper += 2;
+        log("You swing your axe. +2 cp, +0.005 STR");
+        updateUI();
+      }, 2000);
+    }
+  }
 
   function formatCurrency(cp) {
     const gp = Math.floor(cp / 10000);
@@ -72,11 +98,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateUI() {
+    document.getElementById("level").textContent = player.level;
+    document.getElementById("xp").textContent = player.xp;
+    document.getElementById("xpToNext").textContent = player.xpToNext;
+    document.getElementById("statCon").textContent = player.constitution.toFixed(3);
     player.attackSpeed = calculateAttackSpeed(player);
     hpDisplay.textContent = Math.floor(player.hp);
     currencyDisplay.textContent = formatCurrency(player.copper);
-    strDisplay.textContent = player.strength;
-    dexDisplay.textContent = player.dexterity;
+    strDisplay.textContent = player.strength.toFixed(3);
+    dexDisplay.textContent = player.dexterity.toFixed(3);
     apsLabel.textContent = getSpeedLabel(player.attackSpeed);
 
     // Player bar
@@ -226,6 +256,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function checkLevelUp() {
+    while (player.xp >= player.xpToNext) {
+      player.xp -= player.xpToNext;
+      player.level++;
+      player.xpToNext = Math.floor(player.xpToNext * 1.5);
+      
+      const hpGain = 5 + Math.floor(player.constitution * 1.5);
+      player.maxHp += hpGain;
+      player.hp = player.maxHp;
+      
+      player.strength += 1;
+      player.dexterity += 1;
+      log(`✨ You leveled up to level ${player.level}! Stats increased.`);
+      updateUI();
+    }
+  }
+
   function startCombat(enemy) {
     let playerTimer = 0;
     let enemyTimer = 0;
@@ -279,11 +326,13 @@ document.addEventListener("DOMContentLoaded", () => {
         clearInterval(combatLoop);
         const reward = 10;
         player.copper += reward;
+        player.xp += enemy.xp || 10; // Default XP reward if not specified
         document.getElementById("enemyHealthBarContainer").style.display =
           "none";
         log(
           `You defeated the ${enemy.name}! Looted ${formatCurrency(reward)}.`,
         );
+        checkLevelUp();
         updateUI();
       }
     }, interval);
@@ -336,6 +385,9 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       enemy.currentHp = enemy.hp;
       startCombat(enemy);
+    } else if (action === "chop wood") {
+      const btn = Array.from(document.querySelectorAll("#locationActions button")).find(b => b.textContent.toLowerCase().includes("chop"));
+      toggleWoodcutting(btn);
     }
   }
 
@@ -351,9 +403,17 @@ document.addEventListener("DOMContentLoaded", () => {
     switchLocation(e.target.value);
   });
 
+  document.getElementById('statConWrapper').addEventListener('mouseover', (e) =>
+    showTooltip('Constitution increases health gained on level-up.', e.pageX, e.pageY));
+  document.getElementById('statConWrapper').addEventListener('mousemove', (e) =>
+    showTooltip('Constitution increases health gained on level-up.', e.pageX, e.pageY));
+  document.getElementById('statConWrapper').addEventListener('mouseleave', hideTooltip);
+  document.getElementById("woodcutBtn").addEventListener("click", toggleWoodcutting);
+
   applyEquipmentBonuses();
   updateUI();
   renderLocationUI();
+  
   // Passive health regeneration every second
   setInterval(() => {
     if (player.alive && player.hp < player.maxHp) {
