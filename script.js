@@ -67,9 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
   };
 
-  const playerSkills = {
+  window.playerSkills = {
     woodcutting: {
       xp: 0,
+      totalXp: 0,
       level: 1,
       xpToNext: 83
     }
@@ -87,10 +88,23 @@ document.addEventListener("DOMContentLoaded", () => {
         "The tree begins to lean...",
         "A loud crack echoes through the woods."
       ],
-      xpPerStage: 10,
+      xpPerStage: 5,
       rewardCopper: () => 5 + Math.floor(Math.random() * 6) // 5 to 10 cp
+    },
+    oak: {
+      name: "Oak",
+      requiredLevel: 5,
+      stages: [
+        "You grip your axe tightly against the oak.",
+        "You swing hard, but the oak resists.",
+        "The tree shakes as you dig deeper.",
+        "A loud crack echoes through the woods.",
+        "The oak begins to splinter..."
+      ],
+      xpPerStage: 8,
+      rewardCopper: () => 10 + Math.floor(Math.random() * 11) // 10 to 20 cp
     }
-    // Add more trees later...
+    //TODO Add more trees later...
   };
   
   let currentLocation = "town";
@@ -98,36 +112,43 @@ document.addEventListener("DOMContentLoaded", () => {
   let isChopping = false;
 
   function getSkillLevel(skill) {
-    const xp = playerSkills[skill].xp;
+    const xp = playerSkills[skill].totalXp;
     let level = 1;
     let totalXp = 0;
-
+  
     for (let i = 1; i <= 99; i++) {
       totalXp += Math.floor(i + 300 * Math.pow(2, i / 7));
-      if (totalXp / 4 > xp) break;  // ← this division is crucial
-      level = i;
+      const scaledXp = Math.floor(totalXp / 4);
+  
+      if (xp < scaledXp) return level;
+      level = i + 1;
     }
-
+  
     return level;
   }
 
   function addSkillXp(skill, amount) {
     const skillObj = playerSkills[skill];
     skillObj.xp += amount;
-
+    skillObj.totalXp += amount;
+  
+    // Determine current level before assigning
+    const oldLevel = skillObj.level;
     const newLevel = getSkillLevel(skill);
-    if (newLevel > skillObj.level) {
+  
+    if (newLevel > oldLevel) {
       skillObj.level = newLevel;
+      skillObj.xp = 0; // Reset XP for next level
       log(`🪓 Your ${skill} level is now ${newLevel}!`);
     }
-
-    // Recalculate xpToNext properly
+  
+    // Calculate XP required for next level (from current level to +1)
     let totalXp = 0;
-    for (let i = 1; i <= newLevel + 1; i++) {
+    for (let i = 1; i < newLevel + 1; i++) {
       totalXp += Math.floor(i + 300 * Math.pow(2, i / 7));
     }
-    skillObj.xpToNext = Math.floor(totalXp / 4);
-
+  
+    skillObj.xpToNext = Math.floor((totalXp / 4) - skillObj.xp);
     renderSkillTab();
   }
 
@@ -136,11 +157,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderSkillTab() {
     const container = document.getElementById("skillsList");
     if (!container) return;
-
+  
     container.innerHTML = "";
+  
     Object.entries(playerSkills).forEach(([key, skill]) => {
       const row = document.createElement("div");
-      row.textContent = `${capitalize(key)}: Level ${skill.level} (${skill.xp} XP)`;
+      const progress = skill.xpToNext
+        ? ` (${skill.xp} / ${skill.xp + skill.xpToNext} XP)`
+        : ` (${skill.xp} XP)`; // fallback if xpToNext not defined
+      row.textContent = `${capitalize(key)}: Level ${skill.level}${progress}`;
       container.appendChild(row);
     });
   }
@@ -248,6 +273,18 @@ document.addEventListener("DOMContentLoaded", () => {
     woodcuttingInterval = setInterval(() => {
       if (!isChopping || !currentTree) {
         stopWoodcutting();
+        return;
+      }
+
+      // Calculate failure chance based on player level vs required level
+      const playerLevel = getSkillLevel("woodcutting");
+      const requiredLevel = currentTree.type.requiredLevel;
+      const levelDiff = Math.max(0, requiredLevel - playerLevel);
+      let failChance = 0.25 - (playerLevel - requiredLevel) * 0.01;
+      failChance = Math.max(0.05, Math.min(0.25, failChance)); // clamp between 5% and 25%
+
+      if (Math.random() < failChance) {
+        log("You swing and miss. The tree remains untouched.");
         return;
       }
 
