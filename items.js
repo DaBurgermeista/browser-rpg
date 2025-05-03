@@ -53,4 +53,22 @@ window.items = {
       attackSpeed: -200,
     },
   },
+  "Pine Log": {
+    name: "Pine Log",
+    slot: "material",
+    description: "A softwood log useful for crafting or selling.",
+    value: 3
+  },
+  "Oak Log": {
+    name: "Oak Log",
+    slot: "material",
+    description: "A sturdy log cut from an oak tree.",
+    value: 6
+  },
+  "Ash Log": {
+    name: "Ash Log",
+    slot: "material",
+    description: "A dense log with flexible grain, ideal for toolmaking.",
+    value: 9
+  }
 };

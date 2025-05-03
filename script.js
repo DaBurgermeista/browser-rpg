@@ -61,9 +61,9 @@ document.addEventListener("DOMContentLoaded", () => {
       cloak: null,
     },
     inventory: [
-      items["Rusty Dagger"],
-      items["Tattered Cloak"],
-      items["Lucky Coin"],
+      { item: items["Rusty Dagger"], quantity: 1 },
+      { item: items["Tattered Cloak"], quantity: 1 },
+      { item: items["Lucky Coin"], quantity: 1 },
     ],
   };
 
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Tree types with required levels
+  // Tree types with required levels and log rewards
   const treeTypes = {
     pine: {
       name: "Pine",
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "A loud crack echoes through the woods."
       ],
       xpPerStage: 5,
-      rewardCopper: () => 5 + Math.floor(Math.random() * 6) // 5 to 10 cp
+      rewardItem: "Pine Log"
     },
     oak: {
       name: "Oak",
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "The oak begins to splinter..."
       ],
       xpPerStage: 8,
-      rewardCopper: () => 10 + Math.floor(Math.random() * 11) // 10 to 20 cp
+      rewardItem: "Oak Log"
     }
     //TODO Add more trees later...
   };
@@ -221,11 +221,13 @@ document.addEventListener("DOMContentLoaded", () => {
     clearInterval(woodcuttingInterval);
     woodcuttingInterval = null;
     isChopping = false;
+    // Store the key before clearing currentTree
+    const treeKeyBeforeStop = currentTree?.key;
     currentTree = null;
     log("You stop chopping wood.");
 
-    const btn = document.querySelector("#locationActions button.chop-button");
-    if (btn) btn.textContent = "Chop Wood";
+    renderLocationUI();
+    updateUI();
   }
 
   function startNewTree() {
@@ -253,7 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
   
-  function toggleWoodcutting() {
+  function toggleWoodcutting(treeKey) {
     const btn = document.querySelector("#locationActions button.chop-button");
 
     if (isChopping) {
@@ -267,7 +269,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     log("You grip your axe and face the tree...");
     isChopping = true;
-    startNewTree();
+    currentTree = {
+      key: treeKey,
+      type: treeTypes[treeKey],
+      stage: 0,
+      totalStages: treeTypes[treeKey].stages.length
+    };
     if (btn) btn.textContent = "Stop Chopping";
 
     woodcuttingInterval = setInterval(() => {
@@ -294,9 +301,21 @@ document.addEventListener("DOMContentLoaded", () => {
       if (stage < currentTree.totalStages) {
         log(currentTree.type.stages[Math.min(stage, currentTree.totalStages - 1)]);
       } else {
-        const reward = currentTree.type.rewardCopper();
-        player.copper += reward;
-        log(`🪵 The ${currentTree.type.name} tree crashes down! You earn ${reward} copper.`);
+        // Give log item reward instead of copper
+        const rewardItemKey = currentTree.type.rewardItem;
+        const rewardItem = items[rewardItemKey];
+        if (rewardItem) {
+          // Add or increment item in inventory
+          const existing = player.inventory.find(i => i.item === rewardItem);
+          if (existing) {
+            existing.quantity++;
+          } else {
+            player.inventory.push({ item: rewardItem, quantity: 1 });
+          }
+          log(`🪓 You collect 1 ${rewardItem.name} from the fallen ${currentTree.type.name} tree.`);
+        } else {
+          log("The tree falls, but you find nothing worth keeping.");
+        }
         currentTree = null;
 
         if (currentLocation === "woods" && !locations["clearing"].discovered) {
@@ -377,6 +396,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (hpText) hpText.textContent = `${Math.floor(player.hp)} / ${player.maxHp}`;
 
     renderInventory();
+    renderEquipmentTab();
   }
 
   function log(message) {
@@ -401,7 +421,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tooltip += `<span class="bonus">+${value} ${capitalize(key)}</span><br>`;
       }
     }
-
+    tooltip += `<em class="tooltip-sub">Type: ${item.slot.toUpperCase()}</em><br>`;
     return tooltip;
   }
 
@@ -421,10 +441,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showTooltip(text, x, y) {
-    tooltip.style.left = x + 10 + "px";
-    tooltip.style.top = y + 10 + "px";
     tooltip.innerHTML = text;
     tooltip.style.display = "block";
+    // Positioning logic with overflow protection and above-cursor display
+    requestAnimationFrame(() => {
+      const tooltipRect = tooltip.getBoundingClientRect();
+      let adjustedX = x + 10;
+      let adjustedY = y - tooltipRect.height - 10;
+
+      // Prevent overflow to the right
+      if (adjustedX + tooltipRect.width > window.innerWidth) {
+        adjustedX = window.innerWidth - tooltipRect.width - 10;
+      }
+      // Prevent overflow above
+      if (adjustedY < 0) {
+        adjustedY = y + 10; // fallback to below cursor
+      }
+
+      tooltip.style.left = adjustedX + "px";
+      tooltip.style.top = adjustedY + "px";
+    });
   }
 
   function hideTooltip() {
@@ -445,6 +481,47 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   }
+
+  // Render equipment tab: show equipped items with inventory-item style and tooltips
+  function renderEquipmentTab() {
+    const equipmentDiv = document.getElementById("equipmentDisplay");
+    if (!equipmentDiv) return;
+
+    equipmentDiv.innerHTML = "";
+
+    for (const slot of ["weapon", "offhand", "armor", "helmet", "gloves", "boots", "accessory", "belt", "cloak"]) {
+      const item = player.equipment[slot];
+      const itemDiv = document.createElement("div");
+      itemDiv.classList.add("inventory-item");
+
+      if (item) {
+        itemDiv.textContent = item.name;
+        itemDiv.onmouseover = (e) => showTooltip(getItemTooltip(item), e.clientX, e.clientY - 20);
+        itemDiv.onmousemove = (e) => showTooltip(getItemTooltip(item), e.clientX, e.clientY - 20);
+        itemDiv.onmouseleave = hideTooltip;
+        itemDiv.onclick = () => {
+          // Unequip the item
+          const equippedItem = player.equipment[slot];
+          if (equippedItem) {
+            const existing = player.inventory.find(i => i.item === equippedItem);
+            if (existing) {
+              existing.quantity++;
+            } else {
+              player.inventory.push({ item: equippedItem, quantity: 1 });
+            }
+            player.equipment[slot] = null;
+            applyEquipmentBonuses();
+            updateUI();
+          }
+        };
+      } else {
+        itemDiv.textContent = `${capitalize(slot)}: None`;
+        itemDiv.classList.add("empty-slot");
+      }
+
+      equipmentDiv.appendChild(itemDiv);
+    }
+  }
   function updateEnemyHealthBar(enemy) {
     const pct = Math.floor((enemy.currentHp / enemy.hp) * 100);
     document.getElementById("enemyHealthBar").style.width = `${pct}%`;
@@ -457,64 +534,60 @@ document.addEventListener("DOMContentLoaded", () => {
     const inventoryDiv = document.getElementById("inventory");
     inventoryDiv.innerHTML = "";
 
-    player.inventory.forEach((item, index) => {
-      const btn = document.createElement("button");
-      btn.textContent = `${item.slot.toUpperCase()}: ${item.name}`;
-      btn.onmouseover = (e) =>
-        showTooltip(getItemTooltip(item), e.pageX, e.pageY);
-      btn.onmousemove = (e) =>
-        showTooltip(getItemTooltip(item), e.pageX, e.pageY);
-      btn.onmouseleave = hideTooltip;
+    player.inventory.forEach(({ item, quantity }, index) => {
+      const itemDiv = document.createElement("div");
+      itemDiv.classList.add("inventory-item");
+      itemDiv.textContent = quantity > 1 ? `${item.name} (x${quantity})` : item.name;
+      itemDiv.onmouseover = (e) =>
+        showTooltip(getItemTooltip(item), e.clientX, e.clientY - 20);
+      itemDiv.onmousemove = (e) =>
+        showTooltip(getItemTooltip(item), e.clientX, e.clientY - 20);
+      itemDiv.onmouseleave = hideTooltip;
 
-      btn.onclick = () => {
+      itemDiv.onclick = () => {
         const slot = item.slot;
-        if (player.equipment[slot]) {
-          player.inventory.push(player.equipment[slot]);
+        if (!slot || !player.equipment.hasOwnProperty(slot)) {
+          log(`${item.name} cannot be equipped.`);
+          return;
         }
+
+        if (player.equipment[slot] === item) {
+          // Unequip the item
+          const existing = player.inventory.find(i => i.item === item);
+          if (existing) {
+            existing.quantity++;
+          } else {
+            player.inventory.push({ item: item, quantity: 1 });
+          }
+          player.equipment[slot] = null;
+          applyEquipmentBonuses();
+          updateUI();
+          return;
+        }
+
+        if (player.equipment[slot]) {
+          const equipped = player.equipment[slot];
+          const found = player.inventory.find(i => i.item === equipped);
+          if (found) {
+            found.quantity++;
+          } else {
+            player.inventory.push({ item: equipped, quantity: 1 });
+          }
+        }
+
         player.equipment[slot] = item;
-        player.inventory.splice(index, 1);
+        if (quantity > 1) {
+          player.inventory[index].quantity--;
+        } else {
+          player.inventory.splice(index, 1);
+        }
         applyEquipmentBonuses();
         updateUI();
       };
 
-      inventoryDiv.appendChild(btn);
+      inventoryDiv.appendChild(itemDiv);
     });
 
-    const equippedSlots = [
-      "weapon",
-      "offhand",
-      "armor",
-      "helmet",
-      "gloves",
-      "boots",
-      "accessory",
-      "belt",
-      "cloak",
-    ];
-
-    equippedSlots.forEach((slot) => {
-      const btn = document.getElementById(`unequip${capitalize(slot)}`);
-      const item = player.equipment[slot];
-      btn.textContent = item ? item.name : "None";
-
-      const tooltipText = item ? getItemTooltip(item) : "";
-      btn.onmouseover = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
-      btn.onmousemove = (e) => showTooltip(tooltipText, e.pageX, e.pageY);
-      btn.onmouseleave = hideTooltip;
-
-      if (item) {
-        btn.disabled = false;
-        btn.onclick = () => {
-          player.inventory.push(item);
-          player.equipment[slot] = null;
-          applyEquipmentBonuses();
-          updateUI();
-        };
-      } else {
-        btn.disabled = true;
-        btn.onclick = null;
-      }
-    });
   }
 
   function checkLevelUp() {
@@ -609,11 +682,32 @@ document.addEventListener("DOMContentLoaded", () => {
     locationActions.innerHTML = "";
 
     loc.actions.forEach((action) => {
-      const btn = document.createElement("button");
-      btn.classList.add("chop-button");
-      btn.textContent = capitalize(action);
-      btn.onclick = (e) => handleLocationAction(action, e);
-      locationActions.appendChild(btn);
+      if (action === "chop wood") {
+        const availableTrees = loc.trees || [];
+        const eligibleTrees = availableTrees.filter(
+          key => getSkillLevel("woodcutting") >= treeTypes[key].requiredLevel
+        );
+    
+        if (eligibleTrees.length === 0) {
+          const msg = document.createElement("p");
+          msg.textContent = "You don't have the skill to chop any trees here.";
+          locationActions.appendChild(msg);
+          return;
+        }
+    
+        eligibleTrees.forEach(treeKey => {
+          const btn = document.createElement("button");
+          btn.textContent = `Chop ${treeTypes[treeKey].name}`;
+          btn.classList.add("chop-button");
+          btn.onclick = () => toggleWoodcutting(treeKey);
+          locationActions.appendChild(btn);
+        });
+      } else {
+        const btn = document.createElement("button");
+        btn.textContent = capitalize(action);
+        btn.onclick = (e) => handleLocationAction(action, e);
+        locationActions.appendChild(btn);
+      }
     });
 
     locationSelect.value = currentLocation;

@@ -24,8 +24,9 @@ window.locations = {
     description: "A peaceful opening in the woods, something seems off...",
     discovered: false,
     isHub: false,
-    actions: ["explore"],
+    actions: ["chop wood"],
     connections: ["woods"],
+    trees: ["oak", "ash"],
     requiredDiscovery: "woods"
   }
 };
