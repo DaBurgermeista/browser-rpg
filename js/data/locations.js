@@ -1,6 +1,6 @@
-// locations.js
+// js/data/locations.js
 
-window.locations = {
+export const locations = {
   town: {
     name: "Town",
     description: "A bustling little town with everything you need.",
@@ -30,6 +30,8 @@ window.locations = {
     connections: ["woods"],
     trees: ["oak", "ash"],
     encounters: ["Bandit", "Skeleton"],
-    requiredDiscovery: "woods"
+    requiredDiscovery: "woods",
+    requiredLevel: 3
   }
 };
+

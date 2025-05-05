@@ -1,4 +1,6 @@
-window.items = {
+// js/data/items.js
+
+export const items = {
   "Rusty Dagger": {
     name: "Rusty Dagger",
     slot: "weapon",
@@ -8,6 +10,8 @@ window.items = {
       dexterity: +1,
       damageRange: [5, 10],
     },
+    value: 5,
+    rarity: "common"
   },
   "Tattered Cloak": {
     name: "Tattered Cloak",

@@ -1,7 +1,17 @@
-// script.js
+// js/main.js
+import { loadGame } from "./systems/save.js";
+import {
+  updateUI,
+  renderLocationUI,
+  renderLocationList,
+  renderLocationDropdown,
+  renderSkillTab,
+} from "./systems/ui.js";
+import { applyEquipmentBonuses, player } from "./core/player.js";
+import { currentLocation } from "./core/state.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const fightBtn = document.getElementById("fightBtn");
+  // Grab DOM elements used across modules
   const status = document.getElementById("status");
   const hpDisplay = document.getElementById("hp");
   const currencyDisplay = document.getElementById("currency");
@@ -11,33 +21,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const tooltip = document.getElementById("tooltip");
   const locationSelect = document.getElementById("locationSelect");
 
+  // expose tooltip for ui.js
+  window.tooltip = tooltip;
+
+  // mouse position helpers (tooltip positioning)
   let lastMouseX = 0;
   let lastMouseY = 0;
-
-  // Woodcutting logic Variables
-  let currentTree = null;
-
   document.addEventListener("mousemove", (e) => {
     lastMouseX = e.clientX;
     lastMouseY = e.clientY;
   });
 
-  window.tooltip = tooltip;
-
-  
-
-  
-
-  let currentLocation = "town";
-  let woodcuttingInterval = null;
-  let isChopping = false;
-
-
-
-
-
-
-
+  // ----- Init saved state -----
+  loadGame();
   applyEquipmentBonuses();
   updateUI();
   renderLocationUI();
@@ -45,16 +41,14 @@ document.addEventListener("DOMContentLoaded", () => {
   renderLocationDropdown();
   renderSkillTab();
 
-  // Passive health regeneration every second
+  // ----- Passive health regeneration -----
   setInterval(() => {
     if (player.alive && player.hp < player.maxHp) {
       player.regenBuffer += player.regen;
-
       if (player.regenBuffer >= 1) {
         const healed = Math.floor(player.regenBuffer);
         player.hp += healed;
         player.regenBuffer -= healed;
-
         if (player.hp > player.maxHp) player.hp = player.maxHp;
         updateUI();
       }
