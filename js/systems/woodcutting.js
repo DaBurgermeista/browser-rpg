@@ -89,7 +89,11 @@ export function toggleWoodcutting(treeKey) {
 
   if (isChopping) {
     stopWoodcutting();
-    if (btn) btn.textContent = "Chop Wood";
+    if (btn) {
+      btn.textContent = "Chop Wood";
+      btn.classList.remove("active-stop"); // <‑‑ add
+    }
+
     return;
   }
 
@@ -104,7 +108,10 @@ export function toggleWoodcutting(treeKey) {
     stage: 0,
     totalStages: treeTypes[treeKey].stages.length,
   };
-  if (btn) btn.textContent = "Stop Chopping";
+  if (btn) {
+    btn.textContent = "Stop Chopping";
+    btn.classList.add("active-stop");   // <‑‑ add
+  }
 
   woodcuttingInterval = setInterval(() => {
     if (!isChopping || !currentTree) {

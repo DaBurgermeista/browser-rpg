@@ -75,9 +75,10 @@ export function startCombat(enemy) {
       clearInterval(combatLoop);
       const reward = 10;
       player.copper += reward;
-      player.xp += enemy.xp || 10;
+      const xpGain = enemy.xp ?? 10;
+      player.xp += xpGain;
       document.getElementById("enemyHealthBarContainer").style.display = "none";
-      log(`You defeated the ${enemy.name}! Looted ${formatCurrency(reward)}.`);
+      log(`You defeated the ${enemy.name}! +${xpGain} XP, Looted ${formatCurrency(reward)}.`);
       checkLevelUp();
       updateUI();
     }

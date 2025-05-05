@@ -30,7 +30,6 @@ export const locations = {
     connections: ["woods"],
     trees: ["oak", "ash"],
     encounters: ["Bandit", "Skeleton"],
-    requiredDiscovery: "woods",
     requiredLevel: 3
   }
 };
