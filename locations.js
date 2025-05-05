@@ -7,6 +7,7 @@ window.locations = {
     discovered: true,
     isHub: true,
     actions: ["rest", "shop"],
+    encounters: [], // safe
     connections: ["woods"]
   },
   woods: {
@@ -17,6 +18,7 @@ window.locations = {
     actions: ["chop wood", "explore"],
     connections: ["town", "clearing"],
     trees: ["pine"],
+    encounters: ["Goblin", "Wolf", "Slime"],
     requiredLevel: 2
   },
   clearing: {
@@ -27,6 +29,7 @@ window.locations = {
     actions: ["chop wood"],
     connections: ["woods"],
     trees: ["oak", "ash"],
+    encounters: ["Bandit", "Skeleton"],
     requiredDiscovery: "woods"
   }
 };

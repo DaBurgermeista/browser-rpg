@@ -22,15 +22,14 @@ document.addEventListener("DOMContentLoaded", () => {
     "You dig deeper into the trunk.",
     "The tree creaks under pressure.",
     "Sap trickles from the wound.",
-    "It’s almost ready to fall..."
+    "It’s almost ready to fall...",
   ];
 
-
-  document.addEventListener('mousemove', (e) => {
+  document.addEventListener("mousemove", (e) => {
     lastMouseX = e.clientX;
     lastMouseY = e.clientY;
   });
-  
+
   window.tooltip = tooltip;
 
   window.player = {
@@ -72,8 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
       xp: 0,
       totalXp: 0,
       level: 1,
-      xpToNext: 83
-    }
+      xpToNext: 83,
+    },
   };
 
   // Tree types with required levels and log rewards
@@ -86,10 +85,10 @@ document.addEventListener("DOMContentLoaded", () => {
         "You make a clean cut into the soft wood.",
         "Sap leaks from the tree as you continue chopping.",
         "The tree begins to lean...",
-        "A loud crack echoes through the woods."
+        "A loud crack echoes through the woods.",
       ],
       xpPerStage: 5,
-      rewardItem: "Pine Log"
+      rewardItem: "Pine Log",
     },
     oak: {
       name: "Oak",
@@ -99,14 +98,14 @@ document.addEventListener("DOMContentLoaded", () => {
         "You swing hard, but the oak resists.",
         "The tree shakes as you dig deeper.",
         "A loud crack echoes through the woods.",
-        "The oak begins to splinter..."
+        "The oak begins to splinter...",
       ],
       xpPerStage: 8,
-      rewardItem: "Oak Log"
-    }
+      rewardItem: "Oak Log",
+    },
     //TODO Add more trees later...
   };
-  
+
   let currentLocation = "town";
   let woodcuttingInterval = null;
   let isChopping = false;
@@ -115,15 +114,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const xp = playerSkills[skill].totalXp;
     let level = 1;
     let totalXp = 0;
-  
+
     for (let i = 1; i <= 99; i++) {
       totalXp += Math.floor(i + 300 * Math.pow(2, i / 7));
       const scaledXp = Math.floor(totalXp / 4);
-  
+
       if (xp < scaledXp) return level;
       level = i + 1;
     }
-  
+
     return level;
   }
 
@@ -131,35 +130,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const skillObj = playerSkills[skill];
     skillObj.xp += amount;
     skillObj.totalXp += amount;
-  
+
     // Determine current level before assigning
     const oldLevel = skillObj.level;
     const newLevel = getSkillLevel(skill);
-  
+
     if (newLevel > oldLevel) {
       skillObj.level = newLevel;
       skillObj.xp = 0; // Reset XP for next level
       log(`🪓 Your ${skill} level is now ${newLevel}!`);
     }
-  
+
     // Calculate XP required for next level (from current level to +1)
     let totalXp = 0;
     for (let i = 1; i < newLevel + 1; i++) {
       totalXp += Math.floor(i + 300 * Math.pow(2, i / 7));
     }
-  
-    skillObj.xpToNext = Math.floor((totalXp / 4) - skillObj.xp);
+
+    skillObj.xpToNext = Math.floor(totalXp / 4 - skillObj.xp);
     renderSkillTab();
   }
-
 
   // Render skills tab
   function renderSkillTab() {
     const container = document.getElementById("skillsList");
     if (!container) return;
-  
+
     container.innerHTML = "";
-  
+
     Object.entries(playerSkills).forEach(([key, skill]) => {
       const row = document.createElement("div");
       const progress = skill.xpToNext
@@ -169,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(row);
     });
   }
-  
+
   /*
   function spawnFloatingText(text, x, y, color = '#4ade80') {
     // Fallback to center of the screen if mouse position is invalid
@@ -214,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   }
   */
-    
+
   function stopWoodcutting() {
     if (!isChopping) return;
 
@@ -235,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const availableTrees = loc.trees || [];
 
     const eligibleTrees = availableTrees.filter(
-      key => getSkillLevel("woodcutting") >= treeTypes[key].requiredLevel
+      (key) => getSkillLevel("woodcutting") >= treeTypes[key].requiredLevel,
     );
 
     if (eligibleTrees.length === 0) {
@@ -244,17 +242,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const chosenKey = eligibleTrees[Math.floor(Math.random() * eligibleTrees.length)];
+    const chosenKey =
+      eligibleTrees[Math.floor(Math.random() * eligibleTrees.length)];
     const chosenTree = treeTypes[chosenKey];
 
     currentTree = {
       key: chosenKey,
       type: chosenTree,
       stage: 0,
-      totalStages: chosenTree.stages.length
+      totalStages: chosenTree.stages.length,
     };
   }
-  
+
   function toggleWoodcutting(treeKey) {
     const btn = document.querySelector("#locationActions button.chop-button");
 
@@ -273,7 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
       key: treeKey,
       type: treeTypes[treeKey],
       stage: 0,
-      totalStages: treeTypes[treeKey].stages.length
+      totalStages: treeTypes[treeKey].stages.length,
     };
     if (btn) btn.textContent = "Stop Chopping";
 
@@ -299,20 +298,24 @@ document.addEventListener("DOMContentLoaded", () => {
       addSkillXp("woodcutting", currentTree.type.xpPerStage);
 
       if (stage < currentTree.totalStages) {
-        log(currentTree.type.stages[Math.min(stage, currentTree.totalStages - 1)]);
+        log(
+          currentTree.type.stages[Math.min(stage, currentTree.totalStages - 1)],
+        );
       } else {
         // Give log item reward instead of copper
         const rewardItemKey = currentTree.type.rewardItem;
         const rewardItem = items[rewardItemKey];
         if (rewardItem) {
           // Add or increment item in inventory
-          const existing = player.inventory.find(i => i.item === rewardItem);
+          const existing = player.inventory.find((i) => i.item === rewardItem);
           if (existing) {
             existing.quantity++;
           } else {
             player.inventory.push({ item: rewardItem, quantity: 1 });
           }
-          log(`🪓 You collect 1 ${rewardItem.name} from the fallen ${currentTree.type.name} tree.`);
+          log(
+            `🪓 You collect 1 ${rewardItem.name} from the fallen ${currentTree.type.name} tree.`,
+          );
         } else {
           log("The tree falls, but you find nothing worth keeping.");
         }
@@ -360,17 +363,20 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("xp").textContent = player.xp;
     document.getElementById("xpToNext").textContent = player.xpToNext;
     const xpPct = Math.floor((player.xp / player.xpToNext) * 100);
-    document.getElementById('compactXpText').textContent = `XP: ${player.xp} / ${player.xpToNext}`;
+    document.getElementById("compactXpText").textContent =
+      `XP: ${player.xp} / ${player.xpToNext}`;
 
-    const xpBar = document.getElementById('compactPlayerXpBar');
+    const xpBar = document.getElementById("compactPlayerXpBar");
     if (xpBar) {
       xpBar.style.width = `${xpPct}%`;
     }
-    document.getElementById("statCon").textContent = player.constitution.toFixed(3);
+    document.getElementById("statCon").textContent =
+      player.constitution.toFixed(3);
     player.attackSpeed = calculateAttackSpeed(player);
 
     const hpPct = Math.floor((player.hp / player.maxHp) * 100);
-    document.getElementById("compactHpText").textContent = `HP: ${Math.floor(player.hp)} / ${player.maxHp}`;
+    document.getElementById("compactHpText").textContent =
+      `HP: ${Math.floor(player.hp)} / ${player.maxHp}`;
     document.getElementById("compactPlayerHealthBar").style.width = `${hpPct}%`;
     const compactPct = Math.floor((player.hp / player.maxHp) * 100);
     const compactBar = document.getElementById("compactPlayerHealthBar");
@@ -393,7 +399,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const bar = document.getElementById("playerHealthBar");
     const hpText = document.getElementById("playerHpText");
     if (bar) bar.style.width = `${pct}%`;
-    if (hpText) hpText.textContent = `${Math.floor(player.hp)} / ${player.maxHp}`;
+    if (hpText)
+      hpText.textContent = `${Math.floor(player.hp)} / ${player.maxHp}`;
 
     renderInventory();
     renderEquipmentTab();
@@ -489,21 +496,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
     equipmentDiv.innerHTML = "";
 
-    for (const slot of ["weapon", "offhand", "armor", "helmet", "gloves", "boots", "accessory", "belt", "cloak"]) {
+    for (const slot of [
+      "weapon",
+      "offhand",
+      "armor",
+      "helmet",
+      "gloves",
+      "boots",
+      "accessory",
+      "belt",
+      "cloak",
+    ]) {
       const item = player.equipment[slot];
       const itemDiv = document.createElement("div");
       itemDiv.classList.add("inventory-item");
 
       if (item) {
         itemDiv.textContent = item.name;
-        itemDiv.onmouseover = (e) => showTooltip(getItemTooltip(item), e.clientX, e.clientY - 20);
-        itemDiv.onmousemove = (e) => showTooltip(getItemTooltip(item), e.clientX, e.clientY - 20);
+        itemDiv.onmouseover = (e) =>
+          showTooltip(getItemTooltip(item), e.clientX, e.clientY - 20);
+        itemDiv.onmousemove = (e) =>
+          showTooltip(getItemTooltip(item), e.clientX, e.clientY - 20);
         itemDiv.onmouseleave = hideTooltip;
         itemDiv.onclick = () => {
           // Unequip the item
           const equippedItem = player.equipment[slot];
           if (equippedItem) {
-            const existing = player.inventory.find(i => i.item === equippedItem);
+            const existing = player.inventory.find(
+              (i) => i.item === equippedItem,
+            );
             if (existing) {
               existing.quantity++;
             } else {
@@ -537,7 +558,8 @@ document.addEventListener("DOMContentLoaded", () => {
     player.inventory.forEach(({ item, quantity }, index) => {
       const itemDiv = document.createElement("div");
       itemDiv.classList.add("inventory-item");
-      itemDiv.textContent = quantity > 1 ? `${item.name} (x${quantity})` : item.name;
+      itemDiv.textContent =
+        quantity > 1 ? `${item.name} (x${quantity})` : item.name;
       itemDiv.onmouseover = (e) =>
         showTooltip(getItemTooltip(item), e.clientX, e.clientY - 20);
       itemDiv.onmousemove = (e) =>
@@ -553,7 +575,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (player.equipment[slot] === item) {
           // Unequip the item
-          const existing = player.inventory.find(i => i.item === item);
+          const existing = player.inventory.find((i) => i.item === item);
           if (existing) {
             existing.quantity++;
           } else {
@@ -567,7 +589,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (player.equipment[slot]) {
           const equipped = player.equipment[slot];
-          const found = player.inventory.find(i => i.item === equipped);
+          const found = player.inventory.find((i) => i.item === equipped);
           if (found) {
             found.quantity++;
           } else {
@@ -587,7 +609,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       inventoryDiv.appendChild(itemDiv);
     });
-
   }
 
   function checkLevelUp() {
@@ -595,11 +616,11 @@ document.addEventListener("DOMContentLoaded", () => {
       player.xp -= player.xpToNext;
       player.level++;
       player.xpToNext = Math.floor(player.xpToNext * 1.5);
-      
+
       const hpGain = 5 + Math.floor(player.constitution * 1.5);
       player.maxHp += hpGain;
       player.hp = player.maxHp;
-      
+
       player.strength += 1;
       player.dexterity += 1;
       log(`✨ You leveled up to level ${player.level}! Stats increased.`);
@@ -627,11 +648,23 @@ document.addEventListener("DOMContentLoaded", () => {
       `${enemyHealthPercent}%`;
 
     const combatLoop = setInterval(() => {
-      if (!player.alive) {
+      if (player.hp <= 0) {
+        player.alive = false;
         clearInterval(combatLoop);
-        log(`You were slain by a ${enemy.name}.`);
+        log("💀 You died! Respawning in town…");
+        setTimeout(() => {
+          Object.assign(player, {
+            hp: player.maxHp,
+            copper: Math.max(0, player.copper - 50),
+          });
+          stopWoodcutting();
+          currentLocation = "town";
+          player.alive = true;
+          renderLocationUI();
+          updateUI();
+        }, 3000);
         return;
-      }
+      } // TODO: Clear enemy health bar
 
       playerTimer += interval;
       if (playerTimer >= player.attackSpeed) {
@@ -685,17 +718,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "chop wood") {
         const availableTrees = loc.trees || [];
         const eligibleTrees = availableTrees.filter(
-          key => getSkillLevel("woodcutting") >= treeTypes[key].requiredLevel
+          (key) => getSkillLevel("woodcutting") >= treeTypes[key].requiredLevel,
         );
-    
+
         if (eligibleTrees.length === 0) {
           const msg = document.createElement("p");
           msg.textContent = "You don't have the skill to chop any trees here.";
           locationActions.appendChild(msg);
           return;
         }
-    
-        eligibleTrees.forEach(treeKey => {
+
+        eligibleTrees.forEach((treeKey) => {
           const btn = document.createElement("button");
           btn.textContent = `Chop ${treeTypes[treeKey].name}`;
           btn.classList.add("chop-button");
@@ -722,7 +755,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const loc = locations[currentLocation];
     if (!loc || !loc.connections) return;
 
-    loc.connections.forEach(key => {
+    loc.connections.forEach((key) => {
       const target = locations[key];
       const li = document.createElement("li");
 
@@ -766,48 +799,47 @@ document.addEventListener("DOMContentLoaded", () => {
       renderLocationList();
     }
   }
-  
-    function handleLocationAction(action, event) {
-      const loc = locations[currentLocation];
 
-      // Only stop woodcutting for actions other than chopping
-      if (action !== "chop wood") {
-        stopWoodcutting();
-      }
+  function handleLocationAction(action, event) {
+    const loc = locations[currentLocation];
 
-      if (action === "rest") {
-        const restCost = 100;
-        if (player.copper >= restCost) {
-          player.copper -= restCost;
-          player.hp = player.maxHp;
-          player.regenBuffer = 0;
-          log(`You rest and fully heal for ${formatCurrency(restCost)}.`);
-          updateUI();
-        } else {
-          log("You don't have enough money to rest.");
-        }
-      } else if (action === "shop") {
-        log("The shop is not implemented yet.");
-      } else if (action === "fight" || action === "explore") {
-        if (!loc.encounters || loc.encounters.length === 0) {
-          log("Nothing to fight here.");
-          return;
-        }
-        const enemyName =
-          loc.encounters[Math.floor(Math.random() * loc.encounters.length)];
-        const enemy = JSON.parse(
-          JSON.stringify(enemies.find((e) => e.name === enemyName)),
-        );
-        enemy.currentHp = enemy.hp;
-        startCombat(enemy);
-      } else if (action === "chop wood") {
-        const btn = Array.from(document.querySelectorAll("#locationActions button"))
-          .find(b => b.textContent.toLowerCase().includes("chop"));
-        if (btn) toggleWoodcutting(event);
-      }
+    // Only stop woodcutting for actions other than chopping
+    if (action !== "chop wood") {
+      stopWoodcutting();
     }
 
-
+    if (action === "rest") {
+      const restCost = 100;
+      if (player.copper >= restCost) {
+        player.copper -= restCost;
+        player.hp = player.maxHp;
+        player.regenBuffer = 0;
+        log(`You rest and fully heal for ${formatCurrency(restCost)}.`);
+        updateUI();
+      } else {
+        log("You don't have enough money to rest.");
+      }
+    } else if (action === "shop") {
+      log("The shop is not implemented yet.");
+    } else if (action === "fight" || action === "explore") {
+      if (!loc.encounters || loc.encounters.length === 0) {
+        log("Nothing to fight here.");
+        return;
+      }
+      const enemyName =
+        loc.encounters[Math.floor(Math.random() * loc.encounters.length)];
+      const enemy = JSON.parse(
+        JSON.stringify(enemies.find((e) => e.name === enemyName)),
+      );
+      enemy.currentHp = enemy.hp;
+      startCombat(enemy);
+    } else if (action === "chop wood") {
+      const btn = Array.from(
+        document.querySelectorAll("#locationActions button"),
+      ).find((b) => b.textContent.toLowerCase().includes("chop"));
+      if (btn) toggleWoodcutting(event);
+    }
+  }
 
   window.switchLocation = function (newLoc) {
     if (locations[newLoc]) {
@@ -823,48 +855,86 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Tab switching logic
-  document.querySelectorAll('.tab-button').forEach(button => {
-    button.addEventListener('click', () => {
+  document.querySelectorAll(".tab-button").forEach((button) => {
+    button.addEventListener("click", () => {
       const targetTab = button.dataset.tab;
 
       // Remove active class from all buttons
-      document.querySelectorAll('.tab-button').forEach(btn =>
-        btn.classList.remove('active'));
+      document
+        .querySelectorAll(".tab-button")
+        .forEach((btn) => btn.classList.remove("active"));
 
       // Hide all tab contents
-      document.querySelectorAll('.tab-content').forEach(tab =>
-        tab.classList.add('hidden'));
+      document
+        .querySelectorAll(".tab-content")
+        .forEach((tab) => tab.classList.add("hidden"));
 
       // Activate clicked button and show relevant tab
-      button.classList.add('active');
-      document.getElementById(targetTab).classList.remove('hidden');
+      button.classList.add("active");
+      document.getElementById(targetTab).classList.remove("hidden");
     });
   });
 
   // Tooltip binding (only once)
-  const conWrapper = document.getElementById('statConWrapper');
-  const strWrapper = document.getElementById('statStrWrapper');
-  const dexWrapper = document.getElementById('statDexWrapper');
+  const conWrapper = document.getElementById("statConWrapper");
+  const strWrapper = document.getElementById("statStrWrapper");
+  const dexWrapper = document.getElementById("statDexWrapper");
   if (conWrapper) {
-    conWrapper.addEventListener('mouseover', (e) =>
-      showTooltip('Constitution increases health gained on level-up.', e.pageX, e.pageY));
-    conWrapper.addEventListener('mousemove', (e) =>
-      showTooltip('Constitution increases health gained on level-up.', e.pageX, e.pageY));
-    conWrapper.addEventListener('mouseleave', hideTooltip);
-  }  
-  if (strWrapper) {
-    strWrapper.addEventListener('mouseover', (e) =>
-      showTooltip('Strength increases damage.', e.pageX, e.pageY));
-    strWrapper.addEventListener('mousemove', (e) =>
-      showTooltip('Strength increases damage.', e.pageX, e.pageY));
-    strWrapper.addEventListener('mouseleave', hideTooltip);
-  } 
-  if (dexWrapper) {
-    dexWrapper.addEventListener('mouseover', (e) =>
-      showTooltip('Dexterity increases attack speed.', e.pageX, e.pageY));
-    dexWrapper.addEventListener('mousemove', (e) =>
-      showTooltip('Dexterity increases attack speed.', e.pageX, e.pageY));
+    conWrapper.addEventListener("mouseover", (e) =>
+      showTooltip(
+        "Constitution increases health gained on level-up.",
+        e.pageX,
+        e.pageY,
+      ),
+    );
+    conWrapper.addEventListener("mousemove", (e) =>
+      showTooltip(
+        "Constitution increases health gained on level-up.",
+        e.pageX,
+        e.pageY,
+      ),
+    );
+    conWrapper.addEventListener("mouseleave", hideTooltip);
   }
+  if (strWrapper) {
+    strWrapper.addEventListener("mouseover", (e) =>
+      showTooltip("Strength increases damage.", e.pageX, e.pageY),
+    );
+    strWrapper.addEventListener("mousemove", (e) =>
+      showTooltip("Strength increases damage.", e.pageX, e.pageY),
+    );
+    strWrapper.addEventListener("mouseleave", hideTooltip);
+  }
+  if (dexWrapper) {
+    dexWrapper.addEventListener("mouseover", (e) =>
+      showTooltip("Dexterity increases attack speed.", e.pageX, e.pageY),
+    );
+    dexWrapper.addEventListener("mousemove", (e) =>
+      showTooltip("Dexterity increases attack speed.", e.pageX, e.pageY),
+    );
+  }
+
+  // At the very end of DOMContentLoaded
+  const SAVE_KEY = "rpgSave";
+  function saveGame() {
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({ player, playerSkills, locations }),
+    );
+  }
+  function loadGame() {
+    const data = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+    if (data) {
+      Object.assign(player, data.player);
+      Object.assign(playerSkills, data.playerSkills);
+      Object.entries(data.locations).forEach(([k, v]) =>
+        Object.assign(locations[k], v),
+      );
+    }
+  }
+  window.addEventListener("beforeunload", saveGame);
+  loadGame();
+  updateUI();
 
   applyEquipmentBonuses();
   updateUI();
@@ -872,7 +942,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderLocationList();
   renderLocationDropdown();
   renderSkillTab();
-  
+
   // Passive health regeneration every second
   setInterval(() => {
     if (player.alive && player.hp < player.maxHp) {
