@@ -8,6 +8,7 @@ export const enemies = [
     maxDamage: 8,
     attackInterval: 1500,
     xp: 14,
+    loot: "goblinBasic",
   },
   {
     name: "Skeleton",
@@ -24,6 +25,7 @@ export const enemies = [
     maxDamage: 5,
     attackInterval: 2500,
     xp: 10,
+    loot: "slimeBasic",
   },
   {
     name: "Bandit",
@@ -32,6 +34,7 @@ export const enemies = [
     maxDamage: 12,
     attackInterval: 1800,
     xp: 23,
+    loot: "banditCache",
   },
   {
     name: "Dark Mage",
@@ -48,6 +51,7 @@ export const enemies = [
     maxDamage: 9,
     attackInterval: 1600,
     xp: 16,
+    loot: "wolfFur",
   },
   {
     name: "Orc",
@@ -72,6 +76,7 @@ export const enemies = [
     maxDamage: 20,
     attackInterval: 2500,
     xp: 44,
+    loot: "bossDragon",
   },
   {
     name: "Demon",

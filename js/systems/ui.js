@@ -1,8 +1,14 @@
 // js/systems/ui.js
-
 import { locations } from "../data/locations.js";
+import { items } from "../data/items.js";
 import { enemies } from "../data/enemies.js";
-import { formatCurrency, getSpeedLabel, capitalize } from "./utils.js";
+import {
+  formatCurrency,
+  getSpeedLabel,
+  capitalize,
+  itemLink, // <‑‑ if you need to use it directly in UI
+} from "./utils.js";
+
 import {
   player,
   playerSkills,
@@ -10,17 +16,19 @@ import {
   calculateAttackSpeed,
   getSkillLevel,
 } from "../core/player.js";
+
 import { currentLocation, setLocation } from "../core/state.js";
-// wood-related helpers
+
+// wood‑related helpers
 import {
   treeTypes,
   toggleWoodcutting,
   stopWoodcutting,
 } from "./woodcutting.js";
-// Combat entry point
+// combat entry
 import { startCombat } from "./combat.js";
 
-// ---------- DOM short-cuts -----------
+// ---------- DOM shortcuts ----------
 const currencyDisplay = document.getElementById("currency");
 const strDisplay = document.getElementById("statStr");
 const dexDisplay = document.getElementById("statDex");
@@ -29,105 +37,144 @@ const status = document.getElementById("status");
 const tooltip = document.getElementById("tooltip");
 const locationSelect = document.getElementById("locationSelect");
 
+// ---------- Core UI updates ----------
 export function updateUI() {
+  // level / xp
   document.getElementById("level").textContent = player.level;
   document.getElementById("xp").textContent = player.xp;
   document.getElementById("xpToNext").textContent = player.xpToNext;
-  const xpPct = Math.floor((player.xp / player.xpToNext) * 100);
+
+  const xpPct = (player.xp / player.xpToNext) * 100;
+  const xpBar = document.getElementById("compactPlayerXpBar");
+  if (xpBar) xpBar.style.width = `${xpPct}%`;
   document.getElementById("compactXpText").textContent =
     `XP: ${player.xp} / ${player.xpToNext}`;
 
-  const xpBar = document.getElementById("compactPlayerXpBar");
-  if (xpBar) {
-    xpBar.style.width = `${xpPct}%`;
-  }
+  // stats
   document.getElementById("statCon").textContent =
     player.constitution.toFixed(3);
   player.attackSpeed = calculateAttackSpeed(player);
-
-  const hpPct = Math.floor((player.hp / player.maxHp) * 100);
-  document.getElementById("compactHpText").textContent =
-    `HP: ${Math.floor(player.hp)} / ${player.maxHp}`;
-  document.getElementById("compactPlayerHealthBar").style.width = `${hpPct}%`;
-  const compactPct = Math.floor((player.hp / player.maxHp) * 100);
-  const compactBar = document.getElementById("compactPlayerHealthBar");
-  if (compactBar) {
-    compactBar.style.width = `${compactPct}%`;
-  }
-
-  const hpDisplay = document.getElementById("hp");
-  if (hpDisplay) {
-    hpDisplay.textContent = Math.floor(player.hp);
-  }
-
   currencyDisplay.textContent = formatCurrency(player.copper);
   strDisplay.textContent = player.strength.toFixed(3);
   dexDisplay.textContent = player.dexterity.toFixed(3);
   apsLabel.textContent = getSpeedLabel(player.attackSpeed);
 
-  // Player bar
-  const pct = Math.floor((player.hp / player.maxHp) * 100);
+  // HP bars
+  const hpPct = (player.hp / player.maxHp) * 100;
+  document.getElementById("compactHpText").textContent =
+    `HP: ${Math.floor(player.hp)} / ${player.maxHp}`;
+  const compactBar = document.getElementById("compactPlayerHealthBar");
+  if (compactBar) compactBar.style.width = `${hpPct}%`;
+
   const bar = document.getElementById("playerHealthBar");
-  const hpText = document.getElementById("playerHpText");
-  if (bar) bar.style.width = `${pct}%`;
-  if (hpText) hpText.textContent = `${Math.floor(player.hp)} / ${player.maxHp}`;
+  const hpTxt = document.getElementById("playerHpText");
+  if (bar) bar.style.width = `${hpPct}%`;
+  if (hpTxt) hpTxt.textContent = `${Math.floor(player.hp)} / ${player.maxHp}`;
+
+  const hpDisplay = document.getElementById("hp");
+  if (hpDisplay) hpDisplay.textContent = Math.floor(player.hp);
 
   renderInventory();
   renderEquipmentTab();
 }
 
+// ---------- Log helper ----------
 export function log(message) {
   const entry = document.createElement("div");
-  entry.textContent = message;
+  entry.innerHTML = message;
   status.appendChild(entry);
   status.scrollTop = status.scrollHeight;
 }
 
+// ---------- Tooltip helpers ----------
 export function getItemTooltip(item) {
-  let tooltip = `<strong class="tooltip-title">${item.name}</strong><br>${item.description}<br>`;
+  let out = `<strong class="tooltip-title">${item.name}</strong><br>${item.description}<br>`;
   const bonuses = item.bonuses || {};
 
   if (bonuses.damageRange) {
     const [min, max] = bonuses.damageRange;
     const strBonus = Math.floor(player.strength / 2);
-    tooltip += `<span class="bonus">Damage: ${min}-${max} + ${strBonus} STR bonus</span><br>`;
+    out += `<span class="bonus">Damage: ${min}-${max} + ${strBonus} STR bonus</span><br>`;
   }
-
-  for (const [key, value] of Object.entries(bonuses)) {
-    if (key !== "damageRange") {
-      tooltip += `<span class="bonus">+${value} ${capitalize(key)}</span><br>`;
-    }
+  for (const [k, v] of Object.entries(bonuses)) {
+    if (k !== "damageRange")
+      out += `<span class="bonus">+${v} ${capitalize(k)}</span><br>`;
   }
-  tooltip += `<em class="tooltip-sub">Type: ${item.slot.toUpperCase()}</em><br>`;
-  return tooltip;
+  out += `<em class="tooltip-sub">Type: ${item.slot.toUpperCase()}</em><br>`;
+  return out;
 }
 
 export function showTooltip(text, x, y) {
   tooltip.innerHTML = text;
   tooltip.style.display = "block";
-  // Positioning logic with overflow protection and above-cursor display
+  tooltip.removeAttribute("hidden");
   requestAnimationFrame(() => {
-    const tooltipRect = tooltip.getBoundingClientRect();
-    let adjustedX = x + 10;
-    let adjustedY = y - tooltipRect.height - 10;
-
-    // Prevent overflow to the right
-    if (adjustedX + tooltipRect.width > window.innerWidth) {
-      adjustedX = window.innerWidth - tooltipRect.width - 10;
-    }
-    // Prevent overflow above
-    if (adjustedY < 0) {
-      adjustedY = y + 10; // fallback to below cursor
-    }
-
-    tooltip.style.left = adjustedX + "px";
-    tooltip.style.top = adjustedY + "px";
+    const rect = tooltip.getBoundingClientRect();
+    let tx = x + 10;
+    let ty = y - rect.height - 10;
+    if (tx + rect.width > window.innerWidth)
+      tx = window.innerWidth - rect.width - 10;
+    if (ty < 0) ty = y + 10;
+    tooltip.style.left = `${tx}px`;
+    tooltip.style.top = `${ty}px`;
   });
 }
-
 export function hideTooltip() {
-  tooltip.style.display = "none";
+  tooltip.setAttribute("hidden", "");
+  setTimeout(() => {
+    tooltip.style.display = "none";
+  }, 150);
 }
+
+// ---------- Tooltip watchdog ----------
+let lastTooltipTime = 0;
+let lastMouse = { x: 0, y: 0 };
+
+document.addEventListener("mousemove", (e) => {
+  lastTooltipTime = performance.now();
+  lastMouse.x = e.clientX;
+  lastMouse.y = e.clientY;
+});
+
+setInterval(() => {
+  if (tooltip.style.display === "none") return;
+
+  // User still moving → keep tooltip
+  if (performance.now() - lastTooltipTime < 400) return;
+
+  // Use cached mouse coords
+  const el = document.elementFromPoint(lastMouse.x, lastMouse.y);
+  if (
+    !el ||
+    (!el.closest(".inventory-item") &&
+      !el.closest(".item-link") &&
+      !el.closest(".equipment-slot"))
+  ) {
+    hideTooltip();
+  }
+}, 300);
+
+// Delegated hover on item links inside the log
+status.addEventListener("mouseover", (e) => {
+  const el = e.target.closest(".item-link");
+  if (!el) return;
+  const item = items[el.dataset.item];
+  if (item) showTooltip(getItemTooltip(item), e.pageX, e.pageY - 20);
+});
+status.addEventListener("mousemove", (e) => {
+  const el = e.target.closest(".item-link");
+  if (el) {
+    const item = items[el.dataset.item];
+    if (item) showTooltip(getItemTooltip(item), e.pageX, e.pageY - 20);
+  } else {
+    hideTooltip();
+  }
+});
+
+status.addEventListener("mouseleave", (e) => {
+  if (e.target.closest(".item-link")) hideTooltip();
+});
+status.addEventListener("scroll", hideTooltip);
 
 // Render equipment tab: show equipped items with inventory-item style and tooltips
 export function renderEquipmentTab() {
@@ -258,9 +305,10 @@ export function renderLocationUI() {
   loc.actions.forEach((action) => {
     if (action === "chop wood") {
       const availableTrees = loc.trees || [];
-      const eligibleTrees = availableTrees.filter(
-        (key) => getSkillLevel("woodcutting") >= treeTypes[key].requiredLevel,
-      );
+      const eligibleTrees = availableTrees.filter((key) => {
+        const tree = treeTypes[key];
+        return tree && getSkillLevel("woodcutting") >= tree.requiredLevel;
+      });
 
       if (eligibleTrees.length === 0) {
         const msg = document.createElement("p");
@@ -285,6 +333,121 @@ export function renderLocationUI() {
   });
 
   locationSelect.value = currentLocation;
+  renderLocationList();
+  renderAsciiMap();
+}
+
+const roomType = (k) =>
+  k === "town"
+    ? "town"
+    : k === "woods"
+      ? "woods"
+      : k === "clearing"
+        ? "clearing"
+        : k === "river"
+          ? "river"
+          : "unknown";
+
+/* ───────────────────────────── ascii‑map renderer ─────────────────────────── */
+export function renderAsciiMap() {
+  const size = 25;                    // 25 × 25 character canvas
+  const mid  = Math.floor(size/2);
+  const blank = Array.from({length:size},()=> " ".repeat(size).split(""));
+  const grid  = blank.map(r=>r.slice());
+
+  const safePut = (x,y,ch)=>{
+    if(x<0||x>=size||y<0||y>=size) return;
+    grid[y][x]=ch;
+  };
+
+  const placeRoom = (gx,gy,label,css)=>{
+    const box  = `[${label.padEnd(5).slice(0,5)}]`;
+    const left = gx-3;                      // 7‑char wide
+    [...box].forEach((ch,i)=> safePut(left+i,gy,`<span class="${css}">${ch}</span>`));
+  };
+
+  const here = locations[currentLocation];
+
+  Object.entries(locations).forEach(([key,loc])=>{
+    const dx = loc.x - here.x;
+    const dy = loc.y - here.y;
+    if(Math.abs(dx)>2 || Math.abs(dy)>2) return;      // view radius 2 rooms
+
+    const gx = (mid + dx) * 8;                        // 7 chars + 1 space
+    const gy = (mid + dy) * 2;                        // row spacing
+
+    const known   = loc.discovered;
+    const current = key === currentLocation;
+    const label   = current ? "  @  "
+                  : known   ? loc.name.slice(0,5)
+                  : "?????";
+
+    const cls = `room-${known?roomType(key):"unknown"}`
+              + (current?" room-current":"");
+
+    placeRoom(gx,gy,label,cls);
+
+    /* connectors (only from discovered rooms) */
+    if(loc.exits && known){
+      if(loc.exits.e) safePut(gx+4, gy  ,"─");
+      if(loc.exits.w) safePut(gx-4, gy  ,"─");
+      if(loc.exits.n) safePut(gx  , gy-1,"│");
+      if(loc.exits.s) safePut(gx  , gy+1,"│");
+    }
+  });
+
+  document.getElementById("asciiMap").innerHTML =
+    grid.map(r=>r.join("")).join("<br>");
+
+  /* click‑to‑travel on coloured boxes */
+  document.querySelectorAll("#asciiMap span[class*='room-']").forEach(el=>{
+    const txt = el.textContent.trim();
+    const key = txt==="@" ? currentLocation
+              : Object.keys(locations).find(k=>locations[k].name.startsWith(txt));
+    if(!key || key===currentLocation || !locations[key].discovered) return;
+    el.style.cursor="pointer";
+    el.onclick=()=>{ switchLocation(key); };
+  });
+}
+
+/* ───────────────────── drag‑scroll for the ascii map ─────────────────────── */
+{
+  const ascii = document.getElementById("asciiMap");
+  let down=false,startX,startY,scrollL,scrollT;
+  ascii.addEventListener("mousedown",e=>{
+    down=true; ascii.classList.add("grabbing");
+    startX=e.pageX; startY=e.pageY;
+    scrollL=ascii.scrollLeft; scrollT=ascii.scrollTop;
+  });
+  ["mouseup","mouseleave"].forEach(evt=>
+    ascii.addEventListener(evt,()=>{down=false;ascii.classList.remove("grabbing");})
+  );
+  ascii.addEventListener("mousemove",e=>{
+    if(!down) return; e.preventDefault();
+    ascii.scrollLeft = scrollL - (e.pageX-startX);
+    ascii.scrollTop  = scrollT  - (e.pageY-startY);
+  });
+}
+
+/* ───────────────────────── switchLocation with auto‑discover ─────────────── */
+function switchLocation(key){
+  const loc=locations[key];
+  if(!loc) return;
+
+  stopWoodcutting();
+
+  const req = loc.requiredLevel || 1;
+  if(player.level<req && !loc.discovered){
+    log(`You need to be level ${req} to venture there.`);
+    return;
+  }
+
+  setLocation(key);
+  if(!loc.discovered) unlockLocation(key);
+
+  renderLocationUI();
+  renderLocationList();
+  renderAsciiMap();
 }
 
 export function renderLocationList() {
@@ -310,6 +473,8 @@ export function renderLocationList() {
     } else {
       li.textContent = "???";
       li.style.color = "#888";
+      li.onclick = () =>
+        log("You haven't discovered how to get to this location.");
     }
 
     locationList.appendChild(li);
@@ -352,6 +517,7 @@ export function unlockLocation(key) {
     log(`You discovered ${loc.name}!`);
     renderLocationDropdown();
     renderLocationList();
+    renderAsciiMap();
   }
 }
 
@@ -396,21 +562,44 @@ export function handleLocationAction(action, event) {
   }
 }
 
-function switchLocation(newLoc) {
-  if (locations[newLoc]) {
-    stopWoodcutting();
-    setLocation(newLoc);
-    log(`You travel to the ${locations[newLoc].name}.`);
-    renderLocationUI();
-    renderLocationList();
-  }
-}
-
 if (locationSelect) {
   locationSelect.addEventListener("change", (e) =>
     switchLocation(e.target.value),
   );
 }
+
+// ui.js (or main.js) — run once after the DOM exists
+const ascii = document.getElementById("asciiMap");
+let isDown = false,
+  startX,
+  startY,
+  scrollL,
+  scrollT;
+
+ascii.addEventListener("mousedown", (e) => {
+  isDown = true;
+  ascii.classList.add("grabbing");
+  startX = e.pageX;
+  startY = e.pageY;
+  scrollL = ascii.scrollLeft;
+  scrollT = ascii.scrollTop;
+});
+
+["mouseleave", "mouseup"].forEach((evt) =>
+  ascii.addEventListener(evt, () => {
+    isDown = false;
+    ascii.classList.remove("grabbing");
+  }),
+);
+
+ascii.addEventListener("mousemove", (e) => {
+  if (!isDown) return;
+  e.preventDefault();
+  const dx = e.pageX - startX;
+  const dy = e.pageY - startY;
+  ascii.scrollLeft = scrollL - dx;
+  ascii.scrollTop = scrollT - dy;
+});
 
 // Tab switching logic
 document.querySelectorAll(".tab-button").forEach((button) => {
@@ -471,3 +660,10 @@ if (dexWrapper) {
     showTooltip("Dexterity increases attack speed.", e.pageX, e.pageY),
   );
 }
+// ---------- Global UI changes should hide tooltip ----------
+document
+  .querySelectorAll(".tab-button")
+  .forEach((btn) => btn.addEventListener("click", hideTooltip));
+
+document.addEventListener("wheel", hideTooltip, { passive: true });
+document.addEventListener("mousedown", hideTooltip);

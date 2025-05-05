@@ -2,9 +2,16 @@
 import { player, checkLevelUp } from "../core/player.js";
 import { enemies } from "../data/enemies.js";
 import { log, updateUI, renderLocationUI } from "./ui.js";
-import { formatCurrency } from "./utils.js";
+import {
+  formatCurrency,
+  rarityColor,
+  weightedRandom,
+  itemLink,
+} from "./utils.js";
 import { stopWoodcutting } from "./woodcutting.js";
 import { setLocation } from "../core/state.js";
+import { lootTables } from "../data/lootTables.js";
+import { items } from "../data/items.js";
 
 const status = document.getElementById("status");
 
@@ -73,12 +80,33 @@ export function startCombat(enemy) {
 
     if (enemy.currentHp <= 0) {
       clearInterval(combatLoop);
-      const reward = 10;
-      player.copper += reward;
       const xpGain = enemy.xp ?? 10;
       player.xp += xpGain;
       document.getElementById("enemyHealthBarContainer").style.display = "none";
-      log(`You defeated the ${enemy.name}! +${xpGain} XP, Looted ${formatCurrency(reward)}.`);
+      log(`You defeated the ${enemy.name}! +${xpGain} XP`);
+
+      if (enemy.loot && lootTables[enemy.loot]) {
+        const drop = weightedRandom(lootTables[enemy.loot]);
+
+        if (drop?.coins) {
+          const [min, max] = drop.coins;
+          const coins = Math.floor(Math.random() * (max - min + 1)) + min;
+          player.copper += coins;
+          log(`You found ${formatCurrency(coins)}!`);
+        } else if (drop?.item) {
+          const item = items[drop.item];
+          if (item) {
+            const color = rarityColor(item.rarity);
+            const existing = player.inventory.find((i) => i.item === item);
+            existing
+              ? existing.quantity++
+              : player.inventory.push({ item, quantity: 1 });
+            log(`You found ${itemLink(drop.item, item)}!`);
+          }
+        } else {
+          log("You found nothing of value.");
+        }
+      }
       checkLevelUp();
       updateUI();
     }

@@ -11,7 +11,7 @@ export const items = {
       damageRange: [5, 10],
     },
     value: 5,
-    rarity: "common"
+    rarity: "uncommon",
   },
   "Tattered Cloak": {
     name: "Tattered Cloak",
@@ -20,6 +20,8 @@ export const items = {
     bonuses: {
       regen: +0.1,
     },
+    value: 5,
+    rarity: "common",
   },
   "Lucky Coin": {
     name: "Lucky Coin",
@@ -28,6 +30,8 @@ export const items = {
     bonuses: {
       dexterity: +2,
     },
+    value: 20,
+    rarity: "rare",
   },
   // NEW ITEMS BELOW
   "Iron Sword": {
@@ -38,6 +42,8 @@ export const items = {
       damageRange: [8, 14],
       strength: +1,
     },
+    value: 25,
+    rarity: "common",
   },
   "Leather Vest": {
     name: "Leather Vest",
@@ -47,6 +53,8 @@ export const items = {
       regen: +0.15,
       strength: +1,
     },
+    value: 15,
+    rarity: "uncommon",
   },
   "Agile Band": {
     name: "Agile Band",
@@ -56,23 +64,28 @@ export const items = {
       dexterity: +3,
       attackSpeed: -200,
     },
+    value: 30,
+    rarity: "rare",
   },
   "Pine Log": {
     name: "Pine Log",
     slot: "material",
     description: "A softwood log useful for crafting or selling.",
-    value: 3
+    value: 3,
+    rarity: "common",
   },
   "Oak Log": {
     name: "Oak Log",
     slot: "material",
     description: "A sturdy log cut from an oak tree.",
-    value: 6
+    value: 6,
+    rarity: "common",
   },
   "Ash Log": {
     name: "Ash Log",
     slot: "material",
     description: "A dense log with flexible grain, ideal for toolmaking.",
-    value: 9
-  }
+    value: 9,
+    rarity: "common",
+  },
 };

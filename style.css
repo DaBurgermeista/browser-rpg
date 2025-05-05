@@ -5,7 +5,8 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   background: #0d0d0d;
   color: #e5e5e5;
@@ -52,6 +53,7 @@ h2 {
   #game {
     flex-direction: column;
   }
+
   #sidePanel {
     margin-top: 1rem;
   }
@@ -81,7 +83,8 @@ h2 {
 .healthbar-fill {
   height: 100%;
   width: 0%;
-  background: #4ade80; /* green default */
+  background: #4ade80;
+  /* green default */
   box-shadow: 0 1px 4px #0007 inset;
   transition: width 0.15s ease-out;
 }
@@ -89,7 +92,8 @@ h2 {
 #compactPlayerXpBar,
 #xpBar,
 .healthbar-fill.xp {
-  background: #60a5fa; /* blue xp */
+  background: #60a5fa;
+  /* blue xp */
 }
 
 .hp-text {
@@ -131,6 +135,20 @@ h2 {
   max-width: 220px;
   color: #e5e5e5;
   line-height: 1.3;
+  transition: opacity 0.15s;
+}
+
+/* Tooltip affordance */
+.item-link {
+  /* includes equipped items */
+  text-decoration: underline dashed 1px #999;
+  text-underline-offset: 2px;
+}
+
+/* stronger colour on hover */
+.item-link:hover,
+.inventory-item:hover {
+  text-decoration-color: #fff;
 }
 
 .tooltip-title {
@@ -140,6 +158,10 @@ h2 {
 .tooltip-sub {
   font-size: 0.75rem;
   color: #999;
+}
+
+#tooltip[hidden] {
+  opacity: 0;
 }
 
 .bonus {
@@ -242,7 +264,8 @@ h2 {
   padding: 0.35rem 1.8rem 0.35rem 0.6rem;
   font-size: 0.9rem;
   border-radius: 4px;
-  appearance: none;          /* hide native arrow */
+  appearance: none;
+  /* hide native arrow */
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
@@ -289,4 +312,85 @@ h2 {
 #locationActions button.chop-button.active-stop {
   background: #991b1b;
   border-color: #991b1b;
+}
+
+.rarity-common {
+  color: #e5e5e5
+}
+
+.rarity-uncommon {
+  color: #22c55e
+}
+
+.rarity-rare {
+  color: #60a5fa
+}
+
+.rarity-epic {
+  color: #c084fc
+}
+
+#worldMapWrapper {
+  max-width: 700px;
+  background: #181818;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: .5rem;
+  margin-bottom: 1rem;
+}
+
+.map-node {
+  cursor: pointer;
+  transition: filter .15s;
+}
+
+.map-node.current {
+  filter: drop-shadow(0 0 6px #60a5fa);
+}
+
+.map-node.locked {
+  cursor: default;
+  opacity: .3;
+}
+
+.ascii-map {
+  background: #111;
+  border: 1px solid #333;
+  padding: .5rem;
+  font-family: "Lucida Console", monospace;
+  line-height: 1;
+  white-space: pre;
+  user-select: none;
+  width: 100%;
+  height: 300px;  /* ← give it a viewport */
+  overflow: auto; /* ← enables scroll & drag */
+}
+
+.room-town {
+  color: #facc15
+}
+
+.room-woods {
+  color: #22c55e
+}
+
+.room-clearing {
+  color: #60a5fa
+}
+
+.room-river {
+  color: #3b82f6
+}
+
+.room-unknown {
+  color: #666
+}
+
+.room-current {
+  text-shadow: 0 0 6px #60a5fa
+}
+
+#asciiMap.grabbing {
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
 }

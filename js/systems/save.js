@@ -1,4 +1,5 @@
 // js/systems/save.js
+
 import { player, playerSkills } from "../core/player.js";
 import { locations } from "../data/locations.js";
 import { currentLocation, setLocation } from "../core/state.js";
@@ -28,4 +29,4 @@ export function loadGame() {
   }
 }
 
-window.addEventListener("beforeunload", saveGame);
+//window.addEventListener("beforeunload", saveGame);

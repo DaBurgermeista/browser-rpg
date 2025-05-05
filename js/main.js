@@ -6,6 +6,7 @@ import {
   renderLocationList,
   renderLocationDropdown,
   renderSkillTab,
+  renderAsciiMap,
 } from "./systems/ui.js";
 import { applyEquipmentBonuses, player } from "./core/player.js";
 import { currentLocation } from "./core/state.js";
@@ -40,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderLocationList();
   renderLocationDropdown();
   renderSkillTab();
+  renderAsciiMap();
 
   // ----- Passive health regeneration -----
   setInterval(() => {
