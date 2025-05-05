@@ -1,9 +1,13 @@
-body {
+html, body {
   font-family: sans-serif;
   background: #111;
   color: white;
   margin: 0;
   padding: 2rem;
+}
+
+#gameWrapper {
+  position: relative;
 }
 
 #game {
@@ -37,9 +41,7 @@ button {
   margin: 0.25rem 0.5rem 0.25rem 0;
 }
 
-#inventory button {
-  margin-bottom: 0.5rem;
-}
+
 
 #tooltip {
   position: absolute;
@@ -71,3 +73,211 @@ button {
   display: block;
 }
 
+/* Health bars */
+.healthbar-wrapper {
+  width: 100%;
+  max-width: 200px;
+  height: 20px;
+  background: #444;
+  border: 1px solid #222;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 5px;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.healthbar-fill {
+  height: 100%;
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+#playerHealthBar {
+  background: #4ade80;
+}
+
+#enemyHealthBar {
+  background: #ef4444;
+}
+
+.hp-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  pointer-events: none;
+}
+
+#enemyHealthBarContainer {
+  display: none;
+  margin-top: 1rem;
+}
+
+/* Floating text */
+.floating-text {
+  position: absolute;
+  font-size: 0.9rem;
+  font-weight: bold;
+  pointer-events: none;
+  opacity: 1;
+  animation: floatUp 1s ease-out;
+  z-index: 9999;
+  transform: translateY(0);
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+}
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.3rem 0.8rem;
+  background: #333;
+  color: white;
+  border: 1px solid #666;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  background: #4ade80;
+  color: black;
+}
+
+.tab-content {
+  display: block;
+}
+
+.tab-content.hidden {
+  display: none;
+}
+.healthbar-fill {
+  height: 100%;
+  width: 100%; /* This will be overridden by JS */
+  transition: width 0.3s ease;
+}
+#compactPlayerHealthBar {
+  background: #4ade80; /* same green as the main bar */
+}
+
+#compactPlayerStatus:hover {
+  cursor: help;
+}
+
+#compactPlayerStatus {
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+.healthbar-wrapper.compact {
+  background: #222;             /* darker background */
+  border: 1px solid #333;
+  border-radius: 3px;
+  max-width: 120px;
+  height: 12px;
+  margin-top: 4px;
+}
+#compactPlayerXpBar {
+  background: #60a5fa;
+}
+#locationListContainer {
+  margin-top: 1rem;
+}
+
+#locationList {
+  list-style: none;
+  padding-left: 0;
+}
+
+#locationList li {
+  padding: 4px 0;
+  cursor: default;
+}
+
+#locationList li:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+
+
+#inventory {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.inventory-item {
+  background: #1f1f1f;
+  color: white;
+  padding: 0.5rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.inventory-item:hover {
+  background: #333;
+}
+#equipmentTab ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+  padding-left: 0;
+  margin-top: 1rem;
+  list-style: none;
+}
+
+#equipmentTab li {
+  background: #1f1f1f;
+  color: white;
+  padding: 0.5rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+#equipmentTab li:hover {
+  background: #333;
+  cursor: pointer;
+}
+#equipmentDisplay {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.equipment-slot {
+  background: #1f1f1f;
+  color: white;
+  padding: 0.5rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.equipment-slot:hover {
+  background: #333;
+  cursor: pointer;
+}
