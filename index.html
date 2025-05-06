@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Browser RPG</title>
+    <title>Console Chronicles</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div id="gameWrapper">
-      <h1>Browser RPG</h1>
+      <h1>Console Chronicles</h1>
 
       <div id="game">
         <!-- Left column: controls + map + log -->
@@ -60,81 +60,85 @@
               ></div>
             </div>
           </div>
+          <tab-container>
+            <div class="tabs">
+              <button class="tab-button active" data-tab="statsTab">
+                Stats
+              </button>
+              <button class="tab-button" data-tab="skillsTab">Skills</button>
+              <button class="tab-button" data-tab="inventoryTab">
+                Inventory
+              </button>
+              <button class="tab-button" data-tab="equipmentTab">
+                Equipment
+              </button>
+              <button class="tab-button" data-tab="logTab">Log</button>
+            </div>
 
-          <div class="tabs">
-            <button class="tab-button active" data-tab="statsTab">Stats</button>
-            <button class="tab-button" data-tab="skillsTab">Skills</button>
-            <button class="tab-button" data-tab="inventoryTab">
-              Inventory
-            </button>
-            <button class="tab-button" data-tab="equipmentTab">
-              Equipment
-            </button>
-            <button class="tab-button" data-tab="logTab">Log</button>
-          </div>
+            <div class="tab-content" id="statsTab">
+              <p>Level: <span id="level">1</span></p>
+              <p>XP: <span id="xp">0</span> / <span id="xpToNext">50</span></p>
+              <p id="statStrWrapper">Strength: <span id="statStr">5</span></p>
+              <p id="statDexWrapper">Dexterity: <span id="statDex">5</span></p>
+              <p id="statConWrapper">
+                Constitution: <span id="statCon">5</span>
+              </p>
+              <p>Attack Speed: <span id="apsLabel">Fast</span></p>
+              <p>Currency: <span id="currency">0 cp</span></p>
+            </div>
 
-          <div class="tab-content" id="statsTab">
-            <h3>Player Stats</h3>
-            <p>Level: <span id="level">1</span></p>
-            <p>XP: <span id="xp">0</span> / <span id="xpToNext">50</span></p>
-            <p id="statStrWrapper">Strength: <span id="statStr">5</span></p>
-            <p id="statDexWrapper">Dexterity: <span id="statDex">5</span></p>
-            <p id="statConWrapper">Constitution: <span id="statCon">5</span></p>
-            <p>Attack Speed: <span id="apsLabel">Fast</span></p>
-            <p>Currency: <span id="currency">0 cp</span></p>
-          </div>
+            <div class="tab-content hidden" id="inventoryTab">
+              <div id="inventory"></div>
+            </div>
 
-          <div class="tab-content hidden" id="inventoryTab">
-            <h3>Inventory</h3>
-            <div id="inventory"></div>
-          </div>
+            <div class="tab-content hidden" id="skillsTab">
+              <div id="skillsList"></div>
+            </div>
 
-          <div class="tab-content hidden" id="skillsTab">
-            <h3>Skills</h3>
-            <div id="skillsList"></div>
-          </div>
-
-          <div class="tab-content hidden" id="equipmentTab">
-            <h3>Equipped</h3>
-            <div id="equipmentDisplay" class="inventory-grid">
-              <div id="slot-weapon" class="equipment-slot" data-slot="weapon">
-                Weapon
-              </div>
-              <div id="slot-offhand" class="equipment-slot" data-slot="offhand">
-                Offhand
-              </div>
-              <div id="slot-armor" class="equipment-slot" data-slot="armor">
-                Armor
-              </div>
-              <div id="slot-helmet" class="equipment-slot" data-slot="helmet">
-                Helmet
-              </div>
-              <div id="slot-gloves" class="equipment-slot" data-slot="gloves">
-                Gloves
-              </div>
-              <div id="slot-boots" class="equipment-slot" data-slot="boots">
-                Boots
-              </div>
-              <div
-                id="slot-accessory"
-                class="equipment-slot"
-                data-slot="accessory"
-              >
-                Accessory
-              </div>
-              <div id="slot-belt" class="equipment-slot" data-slot="belt">
-                Belt
-              </div>
-              <div id="slot-cloak" class="equipment-slot" data-slot="cloak">
-                Cloak
+            <div class="tab-content hidden" id="equipmentTab">
+              <div id="equipmentDisplay" class="inventory-grid">
+                <div id="slot-weapon" class="equipment-slot" data-slot="weapon">
+                  Weapon
+                </div>
+                <div
+                  id="slot-offhand"
+                  class="equipment-slot"
+                  data-slot="offhand"
+                >
+                  Offhand
+                </div>
+                <div id="slot-armor" class="equipment-slot" data-slot="armor">
+                  Armor
+                </div>
+                <div id="slot-helmet" class="equipment-slot" data-slot="helmet">
+                  Helmet
+                </div>
+                <div id="slot-gloves" class="equipment-slot" data-slot="gloves">
+                  Gloves
+                </div>
+                <div id="slot-boots" class="equipment-slot" data-slot="boots">
+                  Boots
+                </div>
+                <div
+                  id="slot-accessory"
+                  class="equipment-slot"
+                  data-slot="accessory"
+                >
+                  Accessory
+                </div>
+                <div id="slot-belt" class="equipment-slot" data-slot="belt">
+                  Belt
+                </div>
+                <div id="slot-cloak" class="equipment-slot" data-slot="cloak">
+                  Cloak
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="tab-content hidden" id="logTab">
-            <h3>Combat Log</h3>
-            <div id="mirrorLog"></div>
-          </div>
+            <div class="tab-content hidden" id="logTab">
+              <div id="mirrorLog"></div>
+            </div>
+          </tab-container>
         </div>
       </div>
     </div>

@@ -34,7 +34,6 @@ const status = document.getElementById("status");
 const tooltip = document.getElementById("tooltip");
 const locationSelect = document.getElementById("locationSelect");
 const locationList = document.getElementById("locationList");
-
 /* ───── helper: biome → class ───── */
 const biomeClass = {
   settlement: "room-town",

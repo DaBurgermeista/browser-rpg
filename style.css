@@ -38,7 +38,7 @@ h1 {
 
 /* left side: map+log */
 #mainColumn {
-  flex: 2;
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -56,25 +56,26 @@ h1 {
 
 /* ─── location controls + map ─────────────────────────────── */
 #locationUI {
+  position: relative;
+  /* leave room for the square map on the right */
+  padding-right: 260px; /* = map-width + map-padding */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
-
 /* map viewport: fixed height, scroll internally */
-.ascii-map {
-  flex: 0 0 200px;
-  width: 100%;
-  overflow: hidden;
+#asciiMap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 250px; /* whatever fixed or % width you like */
+  aspect-ratio: 1 / 1; /* always keep it square */
+  overflow: hidden; /* scroll internally if content overflows */
   background: #111;
   border: 1px solid #333;
+  border-radius: 4px;
   padding: 0.5rem;
-  font-family: "Lucida Console", monospace;
-  line-height: 1.1;
-  white-space: pre;
-  user-select: none;
 }
-
 /* grab cursor when dragging */
 #asciiMap.grabbing {
   cursor: grabbing;
@@ -165,30 +166,57 @@ h1 {
 }
 
 /* ─── tabs & content ─────────────────────────────────────── */
+
+tab-container {
+  max-width: 600px;
+  min-height: 140px;
+  border-radius: 10px;
+  border: none;
+  margin: 0 auto;
+  z-index: 4 !important;
+  position: relative;
+  background: linear-gradient(#141e30, #243b55);
+  background: #16181a;
+  border-top: 1px solid #3b3d3f;
+  background: hsl(232deg 18% 8%);
+}
+
 .tabs {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  text-align: left;
+  position: relative;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+  margin: 1rem 0;
+  border-bottom: 1px solid #333;
 }
 .tab-button {
-  flex: 1;
-  background: #222;
-  border: 1px solid #333;
-  padding: 0.4rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.6rem;
   font-size: 0.85rem;
-  color: #e5e5e5;
-  border-radius: 4px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: border-color 0.15s;
 }
 .tab-button.active {
   background: #16a34a;
   border-color: #16a34a;
 }
 .tab-button:hover:not(.active) {
-  background: #333;
+  background: #fff;
 }
 .tab-content {
-  margin-top: 1rem;
+  margin: 10px 15px 10px 0;
+  letter-spacing: 0.75px;
+  font-size: 14pt;
+  font-style: normal;
+  color: #f0f2fc;
+  line-height: 30px;
+  margin-top: 10pt;
+  font-family: "freight-display-pro";
+  font-weight: 300 !important;
 }
 .tab-content.hidden {
   display: none;
@@ -253,6 +281,7 @@ h1 {
   appearance: none;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
+  max-width: 150px;
 }
 #locationSelect:focus {
   outline: none;
