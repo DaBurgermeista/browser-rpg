@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -6,48 +6,42 @@
     <title>Browser RPG</title>
     <link rel="stylesheet" href="style.css" />
   </head>
-  
   <body>
     <div id="gameWrapper">
       <h1>Browser RPG</h1>
 
-      <div id="locationUI" style="margin-bottom: 1rem">
-        <label for="locationSelect">Fast Travel:</label>
-        <!-- options are injected by JS -->
-        <select id="locationSelect"></select>
-
-        <div id="locationInfo" style="margin-top: 1rem"></div>
-        <h3>World Map</h3>
-        <pre id="asciiMap" class="ascii-map"></pre>
-        <div id="locationActions" style="margin-top: 0.5rem"></div>
-      </div>
-
-      <!-- Game Layout -->
       <div id="game">
-        <!-- Left Column -->
-        <div id="mainPanel">
-          <!-- Enemy HP Bar -->
-          <div
-            id="enemyHealthBarContainer"
-            class="healthbar-wrapper"
-            style="display: none"
-          >
-            <div id="enemyHealthBar" class="healthbar-fill"></div>
-            <div id="enemyHpText" class="hp-text">0 / 0</div>
+        <!-- Left column: controls + map + log -->
+        <div id="mainColumn">
+          <div id="locationUI">
+            <label for="locationSelect">Fast Travel:</label>
+            <select id="locationSelect"></select>
+            <div id="locationInfo"></div>
+            <div id="locationActions"></div>
+            <h3>World Map</h3>
+            <pre id="asciiMap" class="ascii-map"></pre>
           </div>
 
-          <!-- Log -->
-          <div id="status" class="log-box"></div>
+          <div id="mainPanel">
+            <div
+              id="enemyHealthBarContainer"
+              class="healthbar-wrapper"
+              style="display: none"
+            >
+              <div id="enemyHealthBar" class="healthbar-fill"></div>
+              <div id="enemyHpText" class="hp-text">0 / 0</div>
+            </div>
+            <div id="status" class="log-box"></div>
+          </div>
         </div>
 
-        <!-- Right Column -->
+        <!-- Right column: discovered list + compact status + tabs -->
         <div id="sidePanel">
-          <!-- Discoverable Location List -->
           <div id="locationListContainer">
             <h3>Discovered Locations</h3>
             <ul id="locationList"></ul>
           </div>
-          <!-- Compact Status -->
+
           <div id="compactPlayerStatus">
             <div id="compactHpText">HP: 100 / 100</div>
             <div class="healthbar-wrapper compact">
@@ -67,7 +61,6 @@
             </div>
           </div>
 
-          <!-- Tabs -->
           <div class="tabs">
             <button class="tab-button active" data-tab="statsTab">Stats</button>
             <button class="tab-button" data-tab="skillsTab">Skills</button>
@@ -80,7 +73,6 @@
             <button class="tab-button" data-tab="logTab">Log</button>
           </div>
 
-          <!-- Tab Contents -->
           <div class="tab-content" id="statsTab">
             <h3>Player Stats</h3>
             <p>Level: <span id="level">1</span></p>
@@ -147,9 +139,7 @@
       </div>
     </div>
 
-    <div id="tooltip" style="display: none"></div>
-
-    <!-- Scripts -->
-    <script type="module" src="js/main.js"></script>
+    <div id="tooltip" hidden></div>
+    <script type="module" src="js/main.js" defer></script>
   </body>
 </html>
